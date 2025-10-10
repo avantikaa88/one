@@ -1,0 +1,60 @@
+body {
+  background-color: #d9d9d9;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0; /* removed 90px padding so header stays at top */
+}
+
+/* About Section */
+.about-section {
+  padding: 100px 20px; /* spacing from top and sides */
+  text-align: center;
+}
+
+/* Section Title */
+.about-section h2 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 40px;
+  color: #000;
+}
+
+/* Outer container */
+.about-container {
+  display: flex;
+  flex-wrap: wrap; /* allows responsiveness on smaller screens */
+  align-items: center;
+  justify-content: center; 
+  background-color: #d9d9d9;
+  padding: 50px;
+  border: 4px solid #fff;
+  max-width: 1000px;
+  margin: 0 auto; /* center container */
+  gap: 40px; /* space between text and image */
+}
+
+/* Text box styling */
+.about-text {
+  flex: 1 1 400px; /* grow/shrink with screen, min width 400px */
+  color: #000;
+  line-height: 1.7;
+  text-align: left;
+}
+
+/* Circle image box */
+.circle1 {
+  flex: 0 1 350px; /* maintain size on smaller screens */
+  width: 350px;
+  height: 350px;
+  background-color: #c1b7b7;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circle1 img {
+  width: 80%;
+  height: auto;
+  border-radius: 5px;
+}
