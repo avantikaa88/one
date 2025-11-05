@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vet Appointment Form</title>
+  <link rel="stylesheet" href="vet_form.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Veterinary Appointment Form</h1>
+    <form action="#" method="post" class="appointment-form">
+
+      <label for="appointment_id">Appointment ID</label>
+      <input type="text" id="appointment_id" name="appointment_id" placeholder="e.g. AP001" readonly>
+
+      <label for="vet_id">Vet ID</label>
+      <input type="text" id="vet_id" name="vet_id" placeholder="Enter Vet ID" required>
+
+      <label for="pet_id">Pet ID</label>
+      <input type="text" id="pet_id" name="pet_id" placeholder="Enter Pet ID" required>
+
+      <label for="user_id">User ID</label>
+      <input type="text" id="user_id" name="user_id" placeholder="Enter User ID" required>
+
+      <label for="purpose">Purpose</label>
+      <input type="text" id="purpose" name="purpose" placeholder="e.g. Regular Checkup" required>
+
+      <label for="appointment_date">Appointment Date</label>
+      <input type="date" id="appointment_date" name="appointment_date" required>
+
+      <label for="appointment_time">Appointment Time</label>
+      <input type="time" id="appointment_time" name="appointment_time" required>
+      
+      <button type="submit">Book Appointment</button>
+    </form>
+    
+    <a href="index.html" class="back-link">← Back to Home</a>
+  </div>
+</body>
+</html>

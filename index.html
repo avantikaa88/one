@@ -1,32 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    
-    <link rel="stylesheet" href="stylee.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buddy</title>
+  <link rel="stylesheet" href="stylee.css" />
 </head>
 <body>
 
-    <header>
-        <div class="logo">
-            <img src="Group.png" alt="Buddy logo">
-            <h2>Buddy</h2>
-        </div>
-        <nav>
-            <ul>
-                <li><a href="">Home</a></li>
-                <li><a href="About.html">About</a></li>
-                <li><a href="">Service</a></li>
-                <li><a href="">Contact</a></li>
-                <li><a href="" class="Login">Login</a></li>
-                <li><a href="Signup.html" class="signup">Signup</a></li>
-            </ul>
-        </nav>
-    </header>
+  <header>
+    <div class="logo">
+      <img src="Group.png" alt="Buddy Logo">
+      <h2>Buddy</h2>
+    </div>
 
+    <nav class="navbar">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="About.html">About Us</a></li>
+        <li><a href="pet.html">Browse Pets</a></li>
+        <li><a href="VET_FORM.html">Vet Services</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
 
+    <div class="nav-buttons">
+      <a href="LOGIN.html" class="login">Login</a>
+      <a href="Signup.html" class="signup">Signup</a>
+    </div>
+  </header>
 
     <section class="hero">
        <div class="hero-text">
@@ -49,8 +51,8 @@
         <h2>How It Works</h2>
         <div class="steps">
             <div class="step">
-            <div class="circle"> 
-                <img src="image 1.png" alt="how1">
+            <div class="round"> 
+                <!-- <img src="image 1.png" alt="how1"> -->
             </div> <br>
              <h3>Find Your Pet</h3> <br>
              <div class="line"></div> <br>
@@ -58,14 +60,14 @@
             </div>
 
             <div class="step">
-             <div class="circle"></div> <br>
+             <div class="round"></div> <br>
              <h3>Know Your Pet</h3> <br>
              <div class="line"></div> <br>
              <p>Learn importanr details about your chosen pet,icluding behaviour, care needs, and personality traits.</p>
             </div>
 
             <div class="step">
-             <div class="circle"></div> <br>
+             <div class="round"></div> <br>
              <h3>Take Your Pet Home</h3> <br>
              <div class="line"></div> <br>
              <p>Complete the adoption process and welcome your new furry friend into your life with guidance and support.</p>
@@ -74,28 +76,32 @@
     </section>
 
 
-    <section class="pets">
-        <h2>Find your new bestfriend</h2>
-        <div class="pet-types">
-           <div class="pet-type">
-               <div class="circle1">
-                   <img src="image 1.png" alt="dog icon">
-               </div>
-              <h3>Dogs</h3><br>
-               <div class="pups">
-                <img src="PUPS.png" alt="">
-               </div>
-           </div>
-   
-            <div class="pet-type">
-                <div class="circle1">
-                  <img src="image 2.png" alt="cat icon">
-                </div>
-                <h3>Cats</h3>
-                <img src="" alt="">
-            </div>
+   <section class="pets">
+    <h2>Find your new bestfriend</h2>
+
+    <div class="pet-types">
+      <div class="pet-type">
+        <div class="circle">
+          <img src="image 1.png" alt="Dog Icon">
         </div>
-    </section>
+        <h3>Dogs</h3>
+        <div class="pet-images">
+          <img src="PUPS.png" alt="Dog 1">
+        </div>
+      </div>
+
+     
+      <div class="pet-type">
+        <div class="circle">
+          <img src="image 2.png" alt="Cat Icon">
+        </div>
+        <h3>Cats</h3>
+        <div class="pet-images">
+          <img src="Cats.png" alt="Cat 1">
+        </div>
+      </div>
+    </div>
+  </section> 
 
 
     <section class="offers">
@@ -137,42 +143,57 @@
     </div>
 </section> 
 
-
- <footer class="footer">
-  <div class="footer-container">
-    <div class="footer-left">
-      <h2 class="footer-logo">
-        <img src="Group.png" alt="logo">
-        Buddy</h2>
-      <p class="footer-text">
-        Where every pet find love and <br>
-        every owner finds support.
-      </p>
-
-      <div class="social-icons">
-        <a href="#"><i class="fab fa-facebook-f"></i></a>
-        <a href="#"><i class="fab fa-twitter"></i></a>
-        <a href="#"><i class="fab fa-instagram"></i></a>
-      </div>
-    </div>
-
-    <div class="footer-right">
-      <h3>Quick Links</h3>
-      <ul>
-        <li><a href="#">Home</a></li>
-        <li><a href="#">About</a></li>
-        <li><a href="#">Service</a></li>
-        <li><a href="#">Contact</a></li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="footer-bottom">
-    <p>© 2025 <strong>Buddy</strong> | All Rights Reserved | Made with <span>🤍</span> for animals</p>
-  </div>
-</footer> 
-
-
-    
+ <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h2 class="footer-logo">
+                     <img src="Group.png" alt="logo">
+                    Buddy</h2>
+                    <p class="footer-text">
+                       Where every pet find love and <br>
+                       every owner finds support.
+                    </p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="About.html">About</a></li>
+                        <li><a href="pet.html">Browse Pets</a></li>
+                        <li><a href="">Services</a></li>
+                        <li><a href="#">Contact</a></li>
+                        
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Services</h3>
+                    <ul>
+                        <li><a href="#">Pet Adoption</a></li>
+                        <li><a href="#">Veterinary Care</a></li>
+                       
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li> Kathmandu</li>
+                        <li>+977 9874561234 </i> </li>
+                        <li> info@buddy.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                 <p>&copy 2025 <strong>Buddy</strong> | All Rights Reserved | Made with &hearts; for animals</p>
+            </div>
+        </div>
+    </footer>
+  
 </body>
 </html>

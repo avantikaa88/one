@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buddy | User Dashboard</title>
+  <link rel="stylesheet" href="user.css">
+  <link rel="stylesheet" href="stylee.css">
+</head>
+<body>
+  
+
+  <header>
+    <div class="logo">
+      <img src="Group.png" alt="Buddy Logo">
+      <h2>Buddy</h2>
+    </div>
+
+    <nav class="navbar">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="About.html">About Us</a></li>
+        <li><a href="pet.html">Browse Pets</a></li>
+        <li><a href="#">Vet Services</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
+         
+      </div>
+      <a href="#" class="login">Log out</a>
+    </div>
+  </header>
+
+   <!-- ===== Dashboard Layout ===== -->
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <i class="fas fa-paw"></i>
+        <h2>Buddy</h2>
+      </div>
+      <ul class="sidebar-nav">
+        <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="#"><i class="fas fa-paw"></i> My Pets</a></li>
+        <li><a href="#"><i class="fas fa-calendar-alt"></i> Appointments</a></li>
+        <li><a href="#"><i class="fas fa-heart"></i> Adoption</a></li>
+        <!-- <li><a href="#"><i class="fas fa-file-medical"></i> Medical Records</a></li> -->
+        <li><a href="#"><i class="fas fa-shopping-cart"></i> Pet Store</a></li>
+      </ul>
+
+       <div class="user-profile">
+            <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80" alt="Dr. Smith">
+            <div class="user-info">
+                <h4>Harry Smith</h4>
+                <p></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Main Content ===== -->
+    <div class="main-content">
+      
+      <!-- Stats Section -->
+      <section class="stats">
+        <div class="card">
+          <h3>Pets Adopted</h3>
+          <p>2</p>
+        </div>
+        <div class="card">
+          <h3>Pending Applications</h3>
+          <p>1</p>
+        </div>
+        <div class="card">
+          <h3>Payments Due</h3>
+          <p>0</p>
+        </div>
+        <div class="card">
+          <h3>Vet Appointments</h3>
+          <p>1</p>
+        </div>
+      </section>
+
+      <!-- Recent Adoptions -->
+      <section class="recent">
+        <h2>Recent Adoptions</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Pet Name (ID)</th>
+              <th>Type</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Bella</td>
+              <td>Dog</td>
+              <td>2025-10-15</td>
+              <td><span class="status approved">Approved</span></td>
+            </tr>
+            <tr>
+              <td>Snowy</td>
+              <td>Cat</td>
+              <td>2025-10-18</td>
+              <td><span class="status pending">Pending</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Upcoming Appointments -->
+      <section class="section">
+        <div class="section-header">
+          <h3>Upcoming Appointments</h3>
+          <a href="#">View All <i class="fas fa-chevron-right"></i></a>
+        </div>
+
+        <div class="appointments-list">
+          <div class="appointment-item">
+            <div class="appointment-date">
+              <div class="day">15</div>
+              <div class="month">OCT</div>
+            </div>
+            <div class="appointment-details">
+              <h4>Annual Checkup - Bella</h4>
+              <p><i class="far fa-clock"></i> 10:00 AM • Dr. Smith • Wellness Center</p>
+            </div>
+          </div>
+
+          <div class="appointment-item">
+            <div class="appointment-date">
+              <div class="day">18</div>
+              <div class="month">OCT</div>
+            </div>
+            <div class="appointment-details">
+              <h4>Vaccination - Snowy</h4>
+              <p><i class="far fa-clock"></i> 2:30 PM • Dr. Johnson • City Vet Clinic</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Actions -->
+      <section class="actions">
+        <button class="main-btn">Browse More Pets</button>
+        <button class="outline-btn">Book Vet Visit</button>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

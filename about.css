@@ -1,5 +1,5 @@
 body {
-  background-color: #d9d9d9;
+  background-color: #d1beaf;
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0; /* removed 90px padding so header stays at top */
@@ -25,7 +25,7 @@ body {
   flex-wrap: wrap; /* allows responsiveness on smaller screens */
   align-items: center;
   justify-content: center; 
-  background-color: #d9d9d9;
+  background-color: #d1beaf ;
   padding: 50px;
   border: 4px solid #fff;
   max-width: 1000px;
@@ -46,7 +46,7 @@ body {
   flex: 0 1 350px; /* maintain size on smaller screens */
   width: 350px;
   height: 350px;
-  background-color: #c1b7b7;
+  background-color:#efe5d3;
   border-radius: 10px;
   display: flex;
   align-items: center;
