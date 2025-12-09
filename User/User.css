@@ -1,0 +1,382 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #f5ece1;
+    color: #3e2b1b;
+    min-height: 100vh;
+}
+
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background: linear-gradient(135deg, #7c5833, #a07855);
+    color: white;
+    position: relative;
+}
+
+header .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+header .logo img {
+    width: 40px;
+}
+
+
+.navbar {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.navbar ul {
+    display: flex;
+    list-style: none;
+    gap: 40px;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 0;
+    transition: all 0.3s ease;
+    position: relative;
+    white-space: nowrap;
+}
+
+.navbar a:hover {
+    color: #f0e6d6;
+}
+
+.navbar a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #f0e6d6;
+    transition: width 0.3s ease;
+}
+
+.navbar a:hover::after {
+    width: 100%;
+}
+
+
+header .login {
+    text-decoration: none;
+    color: white;
+    background-color: #5f4226;
+    padding: 8px 20px;
+    border-radius: 25px;
+    transition: all 0.3s;
+    flex-shrink: 0;
+}
+
+header .login:hover {
+    background-color: #3e2b1b;
+}
+
+
+.dashboard-container {
+    display: flex;
+    min-height: calc(100vh - 80px);
+}
+
+
+.sidebar {
+    width: 250px;
+    background: linear-gradient(to bottom, #7c5833, #a07855);
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-logo {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 15px;
+}
+
+.sidebar-nav {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar-nav li {
+    margin-bottom: 10px;
+}
+
+.sidebar-nav a {
+    display: block;
+    padding: 12px 15px;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.sidebar-nav a.active,
+.sidebar-nav a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+
+.user-profile {
+    margin-top: auto;
+    text-align: center;
+}
+
+.user-profile img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 2px solid white;
+}
+
+.user-profile h4 {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.user-profile p {
+    font-size: 0.85rem;
+    color: #f0e6d6;
+}
+
+
+.main-content {
+    flex: 1;
+    padding: 30px 40px;
+}
+
+.main-content h2 {
+    margin-bottom: 25px;
+    color: #4b2e05;
+}
+
+
+.stats {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+
+.card {
+    background-color: #fff;
+    flex: 1;
+    min-width: 160px;
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card h3 {
+    color: #4b2e05;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.card p {
+    font-size: 22px;
+    font-weight: 600;
+    color: #7c5833;
+}
+
+
+.upcoming {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+}
+
+.upcoming-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.upcoming-header h2 {
+    color: #4b2e05;
+    margin: 0;
+}
+
+.view-all-button {
+    background: transparent;
+    color: #7c5833;
+    border: 2px solid #7c5833;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+}
+
+.view-all-button:hover {
+    background: #7c5833;
+    color: white;
+}
+
+
+.empty-appointments {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f9f5f0;
+    border-radius: 12px;
+    border: 2px dashed #d4c1a6;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    color: #d4c1a6;
+    margin-bottom: 20px;
+}
+
+.empty-appointments h3 {
+    color: #7c5833;
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.empty-appointments p {
+    color: #8a7355;
+    margin-bottom: 25px;
+    font-size: 1rem;
+}
+
+.empty-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+
+.appointment-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    border-radius: 12px;
+    background-color: #f9f5f0;
+    border-left: 4px solid #7c5833;
+    margin-bottom: 15px;
+}
+
+.appointment-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background-color: #7c5833;
+    color: white;
+    border-radius: 10px;
+    padding: 10px;
+    flex-shrink: 0;
+}
+
+.date-day {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.date-month {
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.appointment-details {
+    flex: 1;
+}
+
+.appointment-details h3 {
+    color: #4b2e05;
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.appointment-details p {
+    color: #7c5833;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.appointment-time {
+    font-weight: 500;
+    color: #5f4226 !important;
+}
+
+
+.vet button {
+    background-color: #7c5833;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.3s;
+    font-size: 0.95rem;
+}
+
+.vet button:hover {
+    background-color: #5f4226;
+    transform: translateY(-2px);
+}
+
+.browse button{
+    background-color: transparent;
+    color: #7c5833;
+    border: 2px solid #7c5833;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.3s;
+    font-size: 0.95rem;
+}
+
+.secondary-btn:hover {
+    background-color: rgba(124, 88, 51, 0.1);
+    transform: translateY(-2px);
+}
+

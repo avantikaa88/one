@@ -18,7 +18,7 @@ header{
   align-items: center;
   padding: 15px 70px;
   background-color: #efe2d1;
-  /* position: sticky; */
+  position: sticky; 
   top: 0;
 }
 
@@ -132,8 +132,9 @@ header{
 
 .how{
   text-align: center;
-  padding-top: 60px;
+  padding-top: 25px;
   padding-bottom: 20px;
+  
 }
 
 
@@ -178,7 +179,7 @@ header{
 
 .pets {
   text-align: center;
-  padding: 60px 20px;
+  padding: 20px;
   background-color: #fff;
 }
 
