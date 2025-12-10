@@ -35,9 +35,56 @@ function getDashboardPath($user_type) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Buddy</title>
     <link rel="stylesheet" href="login.css">
+        <style>
+    body{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 700px;
+        background-color: #ffe6e6;
+    }
+    
+    .login{
+        background-color: rgb(243, 219, 189);
+        padding:25px 20px;
+        border-radius: 15px;
+        width:350px;
+        text-align: center;
+    }
+    
+    .input{
+       width: 80%;
+        padding: 10px;
+        margin: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+    
+    label {
+        display: block;
+        text-align: left;
+        margin-bottom: 5px;
+    }
+    
+    .button {
+      display: inline-block;
+      background-color: rgb(232, 172, 93);
+      color: white;
+      padding:10px;
+      margin: 5px ;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      border-color: white;
+    }
+    
+    .button:hover {
+       background-color: rgb(224, 153, 130);
+    }
+    </style>
 </head>
 <body>
-    <div class="container">
+    <div class="login">
         <h1>Login</h1>
         
         <?php if (!empty($error)): ?>
@@ -63,7 +110,7 @@ function getDashboardPath($user_type) {
             </select>
 
             
-            <button type="submit" class="btn" style="width: 100%; border: none; cursor: pointer;">Login</button>
+            <button type="submit" class="button" style="width: 100%; border: none; cursor: pointer;">Login</button>
         </form>
         
         <div style="margin-top: 15px; text-align: center;">
