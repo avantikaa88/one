@@ -2,14 +2,12 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
-// Check if pet ID is provided
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     die('Pet ID is required');
 }
 
-$pet_id = intval($_GET['id']); // force integer
+$pet_id = intval($_GET['id']); 
 
-// Fetch pet details securely
 $stmt = $conn->prepare("
     SELECT p.*, pt.species, pt.breed AS type_breed, pt.size, pt.life_span
     FROM pet p
@@ -20,11 +18,22 @@ $stmt->bind_param("i", $pet_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows === 0) {
-    die('Pet not found');
-}
+if ($result->num_rows === 0) die('Pet not found');
 
 $pet = $result->fetch_assoc();
+
+// Determine the correct image path (same as pet.php)
+$imageSrc = '../picture/happy.png'; // default
+if (!empty($pet['image'])) {
+    $img = trim($pet['image']);
+    if (filter_var($img, FILTER_VALIDATE_URL)) {
+        $imageSrc = $img; // external URL
+    } elseif (strpos($img,'uploads/') === 0) {
+        $imageSrc = '../admin/'.$img; // uploaded in admin/uploads
+    } else {
+        $imageSrc = '../admin/uploads/'.ltrim($img,'./\\'); // just filename
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -38,19 +47,18 @@ $pet = $result->fetch_assoc();
 .pet-details-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
 .pet-details { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
 .pet-image img { width: 100%; height: 400px; object-fit: cover; border-radius: 10px; }
-.pet-info h1 { font-size: 2.5rem; margin-bottom: 20px; }
-.pet-info table { width: 100%; border-collapse: collapse; }
-.pet-info td { padding: 10px 0; border-bottom: 1px solid #eee; }
-.pet-info td:first-child { width: 150px; font-weight: 600; color: #555; }
+.info h1 { font-size: 2.5rem; margin-bottom: 20px; }
+.info table { width: 100%; border-collapse: collapse; }
+.info td { padding: 10px 0; border-bottom: 1px solid #eee; }
+.info td:first-child { width: 150px; font-weight: 600; color: #555; }
 .status-available { color: #4CAF50; font-weight: 600; }
 .status-adopted { color: #ff9800; font-weight: 600; }
-.action-buttons { margin-top: 25px; display: flex; gap: 15px; flex-wrap: wrap; }
+.buttons { margin-top: 25px; display: flex; gap: 15px; flex-wrap: wrap; }
 .button { padding: 12px 30px; border: none; border-radius: 7px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; }
 .button-adopt { background-color: #4CAF50; color: white; }
 .button-adopt:hover { background-color: #45a049; }
 .button-contact { background-color: #2196F3; color: white; }
 .button-contact:hover { background-color: #0b7dda; }
-
 </style>
 </head>
 <body>
@@ -67,7 +75,7 @@ $pet = $result->fetch_assoc();
             <li><a href="#">Contact</a></li>
         </ul>
     </nav>
-    <div class="nav-buttons">
+    <div class="log">
         <?php if(isset($_SESSION['user_id'])): ?>
             <a href="../logout.php" class="login">Logout</a>
         <?php else: ?>
@@ -79,10 +87,10 @@ $pet = $result->fetch_assoc();
 <div class="pet-details-container">
     <div class="pet-details">
         <div class="pet-image">
-            <img src="../picture/happy.png" alt="<?= htmlspecialchars($pet['name']); ?>">
+            <img src="<?= $imageSrc ?>" alt="<?= htmlspecialchars($pet['name']); ?>">
         </div>
 
-        <div class="pet-info">
+        <div class="info">
             <h1><?= htmlspecialchars($pet['name']); ?></h1>
             <table>
                 <tr><td>Pet ID:</td><td><?= htmlspecialchars($pet['pet_id']); ?></td></tr>
@@ -103,7 +111,7 @@ $pet = $result->fetch_assoc();
             </table>
 
             <?php if (strtolower($pet['status']) === 'available'): ?>
-            <div class="action-buttons">
+            <div class="buttons">
                 <a href="adopt_form.php?pet_id=<?= $pet['pet_id']; ?>" class="button button-adopt">
                     Adopt <?= htmlspecialchars($pet['name']); ?>
                 </a>
