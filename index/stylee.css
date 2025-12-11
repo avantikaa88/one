@@ -55,7 +55,7 @@ header{
   color: #ce9a16;
 }
 
-.nav-buttons {
+.nav{
   display: flex;
   align-items: center;
   gap: 12px;
@@ -105,7 +105,7 @@ header{
   line-height: 1.5;
 }
 
-.hero-buttons .btn, .btn-outline {
+.hero-buttons .button, .outline {
   padding: 10px 20px;
   border: none;
   border-radius: 20px;
@@ -113,12 +113,12 @@ header{
   margin-right: 10px;
 }
 
-.btn {
+.button {
   background-color: #7c4b2c;
   color: white;
 }
 
-.btn-outline {
+.outline {
   background-color: transparent;
   border: 2px solid #7c4b2c;
   color: #7c4b2c;
