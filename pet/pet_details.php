@@ -65,7 +65,7 @@ if (!empty($pet['image'])) {
 
 <header>
     <div class="logo">
-        <img src="/picture/Group.png" alt="Buddy Logo">
+        <img src="../picture/Group.png" alt="Buddy Logo">
         <h2>Buddy</h2>
     </div>
     <nav class="navbar">
