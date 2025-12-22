@@ -38,23 +38,20 @@ $stmt->execute();
 $pending_applications = $stmt->get_result()->fetch_assoc()['cnt'];
 $stmt->close();
 
-
-$stmt = $conn->prepare("
-    SELECT SUM(adoption_fee) AS due 
-    FROM adoption_application 
-    WHERE user_id = ? AND payment_status='Unpaid'
-");
+$stmt = $conn->prepare("SELECT SUM(adoption_fee) AS due FROM adoption_application WHERE user_id = ? AND payment_status='Unpaid'");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $payments_due = $stmt->get_result()->fetch_assoc()['due'] ?? 0;
 $stmt->close();
 
-$vet_appointments = [];
+
 $stmt = $conn->prepare("
     SELECT 
         va.appointment_date,
         va.appointment_time,
         va.status,
+        va.payment_status,
+        va.service_status,
         p.name AS pet_name,
         v.name AS vet_name
     FROM vet_appointments va
@@ -81,9 +78,18 @@ $stmt->close();
 <title>Buddy User Dashboard</title>
 <link rel="stylesheet" href="User.css">
 <style>
-.status-badge { padding: 2px 6px; border-radius: 5px; font-weight: bold; text-transform: uppercase; font-size: 12px; }
+.status-badge { padding: 2px 6px; border-radius: 5px; font-weight: bold; text-transform: uppercase; font-size: 12px; margin-right:5px; display:inline-block; }
 .status-Confirmed { background: #b8f2b8; color: #2d7a2d; }
 .status-Cancelled { background: #ffcccc; color: #a80000; }
+.status-Unpaid { background: #fab1a0; color: #7a1f00; }
+.status-Paid { background: #81ecec; color: #065656; }
+.status-Service-Pending { background: #ffeaa7; color: #665500; }
+.status-Service-Completed { background: #55efc4; color: #05664d; }
+.card { background:#fff; padding:20px; border-radius:10px; margin-bottom:15px; box-shadow:0 4px 10px rgba(0,0,0,0.05); }
+.upcoming ul { list-style:none; padding:0; }
+.upcoming li { background:#fff; padding:15px; border-radius:10px; margin-bottom:10px; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+.empty-appointments { text-align:center; padding:30px; background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+.empty-appointments button { padding:10px 15px; border:none; border-radius:5px; background:#2ecc71; color:#fff; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -105,8 +111,8 @@ $stmt->close();
 
 <div class="dashboard-container">
 
+  
   <div class="sidebar">
-    
     <ul class="sidebar-nav">
       <li><a href="User_dashboard.php" class="active">Dashboard</a></li>
       <li><a href="my_pets.php">My Pets</a></li>
@@ -127,7 +133,7 @@ $stmt->close();
   <div class="main-content">
     <h2>Welcome <?= htmlspecialchars($user['user_name']); ?></h2>
 
- 
+  
     <section class="stats">
       <div class="card"><h3>Pets Adopted</h3><p><?= $pets_adopted; ?></p></div>
       <div class="card"><h3>Pending Applications</h3><p><?= $pending_applications; ?></p></div>
@@ -135,6 +141,7 @@ $stmt->close();
       <div class="card"><h3>Vet Appointments</h3><p><?= count($vet_appointments); ?></p></div>
     </section>
 
+   
     <section class="upcoming">
       <h2>Your Vet Appointments</h2>
 
@@ -147,6 +154,8 @@ $stmt->close();
               Time: <?= htmlspecialchars($v['appointment_time']); ?><br>
               Vet: <?= htmlspecialchars($v['vet_name'] ?? 'Assigned'); ?><br>
               <span class="status-badge status-<?= $v['status']; ?>"><?= htmlspecialchars($v['status']); ?></span>
+              <span class="status-badge status-<?= $v['payment_status']; ?>"><?= htmlspecialchars($v['payment_status']); ?></span>
+              <span class="status-badge status-Service-<?= $v['service_status']; ?>"><?= htmlspecialchars($v['service_status']); ?></span>
             </li>
           <?php endforeach; ?>
         </ul>
