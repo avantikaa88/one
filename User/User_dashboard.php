@@ -2,46 +2,43 @@
 session_start();
 include(__DIR__ . '/../db.php'); 
 
-/* ---------------- AUTH CHECK ---------------- */
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login/login.php");
     exit;
 }
 
-if ($_SESSION['user_type'] !== 'user') {
-    switch ($_SESSION['user_type']) {
-        case 'admin': header("Location: ../Admin/Admin_dashboard.php"); exit;
-        case 'vet': header("Location: ../Vet/Vet_dashboard.php"); exit;
-        case 'shelter': header("Location: ../Shelter/Shelter_dashboard.php"); exit;
-        default: header("Location: ../login/login.php"); exit;
-    }
+switch($_SESSION['user_type']) {
+    case 'user': break;
+    case 'admin': header("Location: ../Admin/Admin_dashboard.php"); exit;
+    case 'vet': header("Location: ../Vet/Vet_dashboard.php"); exit;
+    case 'shelter': header("Location: ../Shelter/Shelter_dashboard.php"); exit;
+    default: header("Location: ../login/login.php"); exit;
 }
 
 $user_id = $_SESSION['user_id'];
 
-/* ---------------- USER INFO ---------------- */
+
 $stmt = $conn->prepare("SELECT user_name, email FROM users WHERE user_id = ? LIMIT 1");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-/* ---------------- DASHBOARD STATS ---------------- */
-// Count adopted pets
+
 $stmt = $conn->prepare("SELECT COUNT(*) AS cnt FROM adoption_application WHERE user_id = ? AND status='Approved'");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $pets_adopted = $stmt->get_result()->fetch_assoc()['cnt'];
 $stmt->close();
 
-// Count pending applications
 $stmt = $conn->prepare("SELECT COUNT(*) AS cnt FROM adoption_application WHERE user_id = ? AND status='Pending'");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $pending_applications = $stmt->get_result()->fetch_assoc()['cnt'];
 $stmt->close();
 
-// Total payments due (based on payment_status='Unpaid')
+
 $stmt = $conn->prepare("
     SELECT SUM(adoption_fee) AS due 
     FROM adoption_application 
@@ -52,40 +49,27 @@ $stmt->execute();
 $payments_due = $stmt->get_result()->fetch_assoc()['due'] ?? 0;
 $stmt->close();
 
-/* ---------------- CONFIRMED VET APPOINTMENTS ONLY ---------------- */
-$hasAppointments = false;
-$vet_appointments = 0;
-$vet_list = [];
-
+$vet_appointments = [];
 $stmt = $conn->prepare("
     SELECT 
         va.appointment_date,
         va.appointment_time,
+        va.status,
         p.name AS pet_name,
         v.name AS vet_name
     FROM vet_appointments va
     JOIN pet p ON va.pet_id = p.pet_id
     LEFT JOIN vet v ON va.vet_id = v.vet_id
-    WHERE va.user_id = ?
-      AND va.status = 'Confirmed'
-      AND va.appointment_date IS NOT NULL
-      AND va.appointment_time IS NOT NULL
+    WHERE va.user_id = ? AND va.status IN ('Confirmed','Cancelled')
     ORDER BY va.appointment_date ASC, va.appointment_time ASC
 ");
-
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
-$vet_appointments = $result->num_rows;
-
-if ($vet_appointments > 0) {
-    $hasAppointments = true;
-    while ($row = $result->fetch_assoc()) {
-        // Format date and time
-        $row['appointment_date'] = date("Y-m-d", strtotime($row['appointment_date']));
-        $row['appointment_time'] = date("H:i", strtotime($row['appointment_time']));
-        $vet_list[] = $row;
-    }
+while ($row = $result->fetch_assoc()) {
+    $row['appointment_date'] = date("Y-m-d", strtotime($row['appointment_date']));
+    $row['appointment_time'] = date("H:i", strtotime($row['appointment_time']));
+    $vet_appointments[] = $row;
 }
 $stmt->close();
 ?>
@@ -96,6 +80,11 @@ $stmt->close();
 <meta charset="UTF-8">
 <title>Buddy User Dashboard</title>
 <link rel="stylesheet" href="User.css">
+<style>
+.status-badge { padding: 2px 6px; border-radius: 5px; font-weight: bold; text-transform: uppercase; font-size: 12px; }
+.status-Confirmed { background: #b8f2b8; color: #2d7a2d; }
+.status-Cancelled { background: #ffcccc; color: #a80000; }
+</style>
 </head>
 <body>
 
@@ -116,14 +105,13 @@ $stmt->close();
 
 <div class="dashboard-container">
 
-  <!-- Sidebar -->
   <div class="sidebar">
-    <div class="sidebar-logo"><h2>Buddy</h2></div>
+    
     <ul class="sidebar-nav">
       <li><a href="User_dashboard.php" class="active">Dashboard</a></li>
       <li><a href="my_pets.php">My Pets</a></li>
       <li><a href="appointments.php">Appointments</a></li>
-      <li><a href="adoption_applications.php">Adoption Application</a></li>
+      <li><a href="adoption_applications.php">Adoption Applications</a></li>
     </ul>
 
     <div class="user-profile" onclick="window.location.href='user_profile.php'">
@@ -135,39 +123,38 @@ $stmt->close();
     </div>
   </div>
 
-  <!-- Main Content -->
+
   <div class="main-content">
     <h2>Welcome <?= htmlspecialchars($user['user_name']); ?></h2>
 
-    <!-- Stats -->
+ 
     <section class="stats">
       <div class="card"><h3>Pets Adopted</h3><p><?= $pets_adopted; ?></p></div>
       <div class="card"><h3>Pending Applications</h3><p><?= $pending_applications; ?></p></div>
       <div class="card"><h3>Payments Due</h3><p>Rs <?= number_format($payments_due, 2); ?></p></div>
-      <div class="card"><h3>Confirmed Vet Appointments</h3><p><?= $vet_appointments; ?></p></div>
+      <div class="card"><h3>Vet Appointments</h3><p><?= count($vet_appointments); ?></p></div>
     </section>
 
-    <!-- Upcoming Confirmed Appointments -->
     <section class="upcoming">
-      <h2>Confirmed Vet Appointments</h2>
+      <h2>Your Vet Appointments</h2>
 
-      <?php if ($hasAppointments): ?>
+      <?php if (!empty($vet_appointments)): ?>
         <ul>
-          <?php foreach ($vet_list as $v): ?>
+          <?php foreach ($vet_appointments as $v): ?>
             <li>
               <strong><?= htmlspecialchars($v['pet_name']); ?></strong><br>
               Date: <?= htmlspecialchars($v['appointment_date']); ?> |
               Time: <?= htmlspecialchars($v['appointment_time']); ?><br>
-              Vet: <?= htmlspecialchars($v['vet_name'] ?? 'Vet'); ?><br>
-              <span style="color:green;font-weight:bold;">Confirmed</span>
+              Vet: <?= htmlspecialchars($v['vet_name'] ?? 'Assigned'); ?><br>
+              <span class="status-badge status-<?= $v['status']; ?>"><?= htmlspecialchars($v['status']); ?></span>
             </li>
           <?php endforeach; ?>
         </ul>
       <?php else: ?>
         <div class="empty-appointments">
-          <h3>No Confirmed Vet Appointments</h3>
-          <p>You don't have any confirmed appointments yet.</p>
-          <button class="browse" onclick="window.location.href='../vetf/VET_FORM.html'">Book Vet Visit</button>
+          <h3>No Vet Appointments</h3>
+          <p>You don't have any confirmed or cancelled appointments yet.</p>
+          <button class="browse" onclick="window.location.href='vet_booking.php'">Book Vet Visit</button>
         </div>
       <?php endif; ?>
     </section>
