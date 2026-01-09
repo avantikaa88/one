@@ -7,7 +7,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
     exit;
 }
 
-// Fetch pet shops
 $shops = $conn->query("SELECT * FROM pet_shop ORDER BY shop_id DESC");
 ?>
 

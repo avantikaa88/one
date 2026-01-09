@@ -12,7 +12,7 @@ $stmt = $conn->prepare("
     SELECT p.*, pt.species, pt.breed AS type_breed, pt.size, pt.life_span
     FROM pet p
     LEFT JOIN pet_type pt ON p.type_id = pt.type_id
-    WHERE p.pet_id = ?
+    WHERE p.pet_id = ? AND LOWER(p.status) = 'available'
 ");
 $stmt->bind_param("i", $pet_id);
 $stmt->execute();
@@ -22,17 +22,24 @@ if ($result->num_rows === 0) die('Pet not found');
 
 $pet = $result->fetch_assoc();
 
-// Determine the correct image path (same as pet.php)
-$imageSrc = '../picture/happy.png'; // default
+// Handle image
+$imageSrc = '../picture/happy.png'; // default image
 if (!empty($pet['image'])) {
     $img = trim($pet['image']);
     if (filter_var($img, FILTER_VALIDATE_URL)) {
-        $imageSrc = $img; // external URL
-    } elseif (strpos($img,'uploads/') === 0) {
-        $imageSrc = '../admin/'.$img; // uploaded in admin/uploads
+        $imageSrc = $img;
     } else {
-        $imageSrc = '../admin/uploads/'.ltrim($img,'./\\'); // just filename
+        // Correct relative path from this file
+        $imageSrc = '../' . $img; // works if $pet['image'] = 'uploads/filename.jpg'
     }
+}
+
+// Calculate age from DOB
+$age = 'Unknown';
+if(!empty($pet['dob'])){
+    $dob = new DateTime($pet['dob']);
+    $today = new DateTime();
+    $age = $today->diff($dob)->y . ' years';
 }
 ?>
 
@@ -46,19 +53,16 @@ if (!empty($pet['image'])) {
 <style>
 .pet-details-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
 .pet-details { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-.pet-image img { width: 100%; height: 400px; object-fit: cover; border-radius: 10px; }
+.pet-image img { width: 100%; max-height: 500px; object-fit: contain; border-radius: 10px; }
 .info h1 { font-size: 2.5rem; margin-bottom: 20px; }
 .info table { width: 100%; border-collapse: collapse; }
 .info td { padding: 10px 0; border-bottom: 1px solid #eee; }
 .info td:first-child { width: 150px; font-weight: 600; color: #555; }
 .status-available { color: #4CAF50; font-weight: 600; }
-.status-adopted { color: #ff9800; font-weight: 600; }
 .buttons { margin-top: 25px; display: flex; gap: 15px; flex-wrap: wrap; }
 .button { padding: 12px 30px; border: none; border-radius: 7px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; }
 .button-adopt { background-color: #4CAF50; color: white; }
 .button-adopt:hover { background-color: #45a049; }
-.button-contact { background-color: #2196F3; color: white; }
-.button-contact:hover { background-color: #0b7dda; }
 </style>
 </head>
 <body>
@@ -70,8 +74,8 @@ if (!empty($pet['image'])) {
     </div>
     <nav class="navbar">
         <ul>
+            <li><a href="../user/User_dashboard.php" class="active">Dashboard</a></li>
             <li><a href="pet.php">Browse Pets</a></li>
-            <li><a href="../vetf/VET_FORM.html">Vet Services</a></li>
             <li><a href="#">Contact</a></li>
         </ul>
     </nav>
@@ -96,34 +100,26 @@ if (!empty($pet['image'])) {
                 <tr><td>Pet ID:</td><td><?= htmlspecialchars($pet['pet_id']); ?></td></tr>
                 <tr><td>Species:</td><td><?= htmlspecialchars($pet['species'] ?? 'Unknown'); ?></td></tr>
                 <tr><td>Breed:</td><td><?= htmlspecialchars($pet['type_breed'] ?? 'Unknown'); ?></td></tr>
-                <tr><td>Age:</td><td><?= htmlspecialchars($pet['age'] ?? 'Unknown'); ?></td></tr>
+                <tr><td>Age:</td><td><?= $age ?></td></tr>
                 <tr><td>Gender:</td><td><?= htmlspecialchars($pet['gender'] ?? 'Unknown'); ?></td></tr>
                 <tr><td>Size:</td><td><?= htmlspecialchars($pet['size'] ?? 'Unknown'); ?></td></tr>
                 <tr><td>Life Span:</td><td><?= htmlspecialchars($pet['life_span'] ?? 'Unknown'); ?></td></tr>
-                <tr>
-                    <td>Status:</td>
-                    <td class="status-<?= strtolower($pet['status']); ?>">
-                        <?= htmlspecialchars($pet['status']); ?>
-                    </td>
-                </tr>
+                <tr><td>Status:</td><td class="status-available"><?= htmlspecialchars($pet['status']); ?></td></tr>
                 <tr><td>Description:</td><td><?= htmlspecialchars($pet['description'] ?? 'No description available'); ?></td></tr>
-                <tr><td>Added on:</td><td><?= date('F j, Y', strtotime($pet['created_at'] ?? date('Y-m-d'))); ?></td></tr>
+                <tr>
+    <td>Added on:</td>
+    <td>
+        <?= !empty($pet['created_at']) ? date('F j, Y', strtotime($pet['created_at'])) : 'Unknown'; ?>
+    </td>
+</tr>
+
             </table>
 
-            <?php if (strtolower($pet['status']) === 'available'): ?>
             <div class="buttons">
                 <a href="adopt_form.php?pet_id=<?= $pet['pet_id']; ?>" class="button button-adopt">
                     Adopt <?= htmlspecialchars($pet['name']); ?>
                 </a>
-                <a href="contact.php?pet_id=<?= $pet['pet_id']; ?>" class="button button-contact">
-                    Contact Shop
-                </a>
             </div>
-            <?php else: ?>
-            <p style="margin-top: 20px; font-weight: 600; color: #ff9800;">
-                This pet is currently not available for adoption.
-            </p>
-            <?php endif; ?>
 
         </div>
     </div>

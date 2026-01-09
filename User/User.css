@@ -7,7 +7,7 @@
 }
 
 body {
-    background: #f5ece1;
+    background:#f8f3ef;
     color: #3e2b1b;
     min-height: 100vh;
 }
@@ -18,7 +18,7 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 15px 40px;
-    background: linear-gradient(135deg, #7c5833, #a07855);
+    background:#a07855;
     color: white;
     position: relative;
 }
@@ -102,7 +102,7 @@ header .login:hover {
 
 .sidebar {
     width: 250px;
-    background: linear-gradient(to bottom, #7c5833, #a07855);
+    background:#a07855;
     color: white;
     padding: 20px;
     display: flex;
@@ -346,7 +346,7 @@ header .login:hover {
 }
 
 
-.vet button {
+.vet {
     background-color: #7c5833;
     color: white;
     border: none;
@@ -358,12 +358,12 @@ header .login:hover {
     font-size: 0.95rem;
 }
 
-.vet button:hover {
+.vet:hover {
     background-color: #5f4226;
     transform: translateY(-2px);
 }
 
-.browse button{
+.browse {
     background-color: transparent;
     color: #7c5833;
     border: 2px solid #7c5833;

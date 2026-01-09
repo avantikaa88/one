@@ -2,19 +2,18 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
-// Redirect if not logged in
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login/login.php");
     exit;
 }
 
-// Redirect non-admin users
 if ($_SESSION['user_type'] !== 'admin') {
     header("Location: ../login/login.php");
     exit;
 }
 
-// Check if id parameter is set
+
 if (!isset($_GET['id'])) {
     header("Location: admin_dashboard.php");
     exit;
@@ -22,7 +21,7 @@ if (!isset($_GET['id'])) {
 
 $adoption_id = (int)$_GET['id'];
 
-// Fetch adoption application details with all related information
+
 $stmt = $conn->prepare("
     SELECT 
         aa.*,
@@ -100,8 +99,7 @@ $stmt->close();
             <?= htmlspecialchars($_GET['error']) ?>
         </div>
     <?php endif; ?>
-    
-    <!-- Application Information -->
+   
     <div class="section">
         <h2>Application Information</h2>
         <div class="info-grid">
@@ -132,7 +130,7 @@ $stmt->close();
         </div>
     </div>
     
-    <!-- User Information -->
+    
     <div class="section">
         <h2>User Information</h2>
         <div class="info-grid">
@@ -155,7 +153,7 @@ $stmt->close();
         </div>
     </div>
     
-    <!-- Pet Information -->
+    
     <div class="section">
         <h2>Pet Information</h2>
         <div class="info-grid">
@@ -198,7 +196,6 @@ $stmt->close();
         </div>
     </div>
     
-    <!-- Admin Actions -->
     <?php if ($application['status'] == 'Pending'): ?>
     <div class="actions">
         <a href="approve_adoption.php?id=<?= $adoption_id ?>&action=approve" class="btn btn-approve">Approve Adoption</a>

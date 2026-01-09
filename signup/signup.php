@@ -5,7 +5,7 @@ session_start();
 $servername = "localhost";
 $username = "root";
 $password = "1234";
-$dbname = "buddy_db";
+$dbname = "fakebuddy_db";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -21,18 +21,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $name = $_POST['name'];
     $user_name = $_POST['user_name'];
     $email = $_POST['email'];
-    $phone = $_POST['phone'] ?? '';
-    $address = $_POST['address'] ?? '';
+    $phone = !empty($_POST['phone']) ? $_POST['phone'] : '';
+    $address = !empty($_POST['address']) ? $_POST['address'] : '';
     $gender = $_POST['gender'];
-    $pass = $_POST['password'];
-    $confirm = $_POST['confirm_password'];
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
 
-    if ($pass !== $confirm) {
+    // Check if passwords match
+    if ($password !== $confirm_password) {
         echo "<script>alert('Passwords do not match!'); window.history.back();</script>";
         exit;
     }
 
-    // Check if user exists
+    // Check if username or email already exists
     $check = $conn->prepare("SELECT user_id FROM users WHERE user_name = ? OR email = ?");
     $check->bind_param("ss", $user_name, $email);
     $check->execute();
@@ -41,16 +42,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         echo "<script>alert('Username or Email already exists!'); window.history.back();</script>";
         exit;
     }
+    $check->close();
 
-    $hashed_pass = password_hash($pass, PASSWORD_DEFAULT);
+    // Hash the password
+    $hashed_pass = password_hash($password, PASSWORD_DEFAULT);
 
-    $stmt = $conn->prepare("INSERT INTO users (name, user_name, password, email, phone, address, gender, user_type) VALUES (?, ?, ?, ?, ?, ?, ?, 'user')");
+    // Insert new user into the database
+    $stmt = $conn->prepare("INSERT INTO users (name, user_name, password, email, phone, address, gender, roles) VALUES (?, ?, ?, ?, ?, ?, ?, 'user')");
     $stmt->bind_param("sssssss", $name, $user_name, $hashed_pass, $email, $phone, $address, $gender);
 
     if ($stmt->execute()) {
+        // Set session variables
         $_SESSION['user_id'] = $conn->insert_id;
         $_SESSION['user_name'] = $user_name;
-        $_SESSION['user_type'] = 'user';
+        $_SESSION['user_role'] = 'user';
+
+        // Redirect to user dashboard
         header("Location: ../User/User_dashboard.php");
         exit;
     } else {

@@ -2,28 +2,34 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
-// Redirect if not logged in
-if (!isset($_SESSION['user_id'])) {
+// ---------------- AUTH CHECK ----------------
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
     header("Location: ../login/login.php");
     exit;
 }
 
-// Redirect non-admin users
-if ($_SESSION['user_type'] !== 'admin') {
-    header("Location: ../login/login.php");
-    exit;
-}
-
-// Fetch pets with type
-$pets = $conn->query("
-SELECT p.pet_id, p.name AS pet_name, p.age, p.gender, p.status, 
-       pt.species, pt.breed, p.adoption_fee
-FROM pet p
-LEFT JOIN pet_type pt ON p.type_id = pt.type_id
-ORDER BY p.pet_id DESC
+// ---------------- FETCH PETS ----------------
+// Available pets
+$available_pets = $conn->query("
+    SELECT p.pet_id, p.name, p.dob, p.gender, p.status, p.adoption_fee, p.image,
+           pt.species, pt.breed
+    FROM pet p
+    LEFT JOIN pet_type pt ON p.type_id = pt.type_id
+    WHERE p.status != 'Adopted'
+    ORDER BY p.pet_id DESC
 ");
 
-// Shop name
+// Adopted pets
+$adopted_pets = $conn->query("
+    SELECT p.pet_id, p.name, p.dob, p.gender, p.status, p.adoption_fee, p.image,
+           pt.species, pt.breed
+    FROM pet p
+    LEFT JOIN pet_type pt ON p.type_id = pt.type_id
+    WHERE p.status = 'Adopted'
+    ORDER BY p.pet_id DESC
+");
+
+// Pet shop name
 $shop_name = "Buddy Pet Shop";
 ?>
 
@@ -32,86 +38,23 @@ $shop_name = "Buddy Pet Shop";
 <head>
 <meta charset="UTF-8">
 <title>Manage Pets</title>
-
+<link rel="stylesheet" href="admin.css">
 <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-    body { background-color: #f5f6fa; color: #333; }
+/* Buttons */
+.add-btn { padding: 5px 15px; background: #00a8ff; color: #fff; border-radius: 5px; text-decoration: none; float: right; }
+.add-btn:hover { background: #0097e6; }
 
-    .dashboard-container { display: flex; min-height: 100vh; }
+/* Table styling */
+table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 40px; }
+th, td { padding: 12px; border: 1px solid #ccc; text-align: left; }
+th { background: #8a5826; color: #fff; }
+tr:nth-child(even) { background: #f7f7f7; }
+a.action { color:#00a8ff; text-decoration:none; margin-right: 5px; }
+a.action:hover { text-decoration: underline; }
+a.delete-link { color: #e84118; text-decoration: none; }
+a.delete-link:hover { color: #c23616; }
 
-    /* Sidebar */
-    .sidebar { 
-        width: 220px; 
-        background-color: #2f3640; 
-        color: #fff; 
-        padding: 20px; 
-        position: fixed; 
-        height: 100vh; 
-    }
-    .sidebar h2 { margin-bottom: 30px; text-align: center; }
-    .sidebar ul { list-style: none; }
-    .sidebar ul li { margin: 15px 0; }
-    .sidebar ul li a { 
-        color: #fff; 
-        text-decoration: none; 
-        padding: 8px 10px; 
-        display: block; 
-        border-radius: 5px; 
-    }
-    .sidebar ul li a:hover, .active {
-        background-color: #00a8ff;
-    }
-    .logout-btn {
-        display: block;
-        margin-top: 20px;
-        padding: 10px 20px;
-        background: #e84118;
-        text-align: center;
-        color: #fff;
-        border-radius: 5px;
-        text-decoration: none;
-    }
-    .logout-btn:hover { background: #c23616; }
-
-    /* Main Content */
-    .main-content { 
-        flex: 1; 
-        padding: 40px; 
-        margin-left: 220px; 
-    }
-
-    h1 { margin-bottom: 20px; }
-
-    .add-btn { 
-        padding: 8px 15px; 
-        background: #00a8ff; 
-        color: white; 
-        text-decoration: none; 
-        border-radius: 5px; 
-        font-size: 14px;
-    }
-    .add-btn:hover { background: #0097e6; }
-
-    /* Table */
-    table { 
-        width: 100%; 
-        border-collapse: collapse; 
-        background: #fff; 
-        border-radius: 10px; 
-        overflow: hidden; 
-        margin-top: 20px; 
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-    }
-    th, td { padding: 12px; border: 1px solid #ccc; }
-    th { background:#2f3640; color:#fff; }
-    tr:nth-child(even) { background:#f7f7f7; }
-
-    a.action { color:#00a8ff; text-decoration:none; }
-    a.action:hover { text-decoration: underline; }
-    .delete-link { color:#e84118; }
-    .delete-link:hover { color:#c23616; }
 </style>
-
 </head>
 <body>
 
@@ -120,64 +63,96 @@ $shop_name = "Buddy Pet Shop";
     <!-- Sidebar -->
     <div class="sidebar">
         <h2>Buddy Admin</h2>
-
-        <ul>
-            <li><a href="admin_dashboard.php">Dashboard</a></li>
-            <li><a href="manage_users.php">Manage Users</a></li>
-            <li><a class="active" href="manage_pets.php">Manage Pets</a></li>
-            <li><a href="adoption_requests.php">Adoption Requests</a></li>
-            <li><a href="appointments.php">Appointments</a></li>
-        </ul>
-
-        <a href="../logout.php" class="logout-btn">Logout</a>
+    <ul>
+        <li><a class="active" href="admin_dashboard.php">Dashboard</a></li>
+        <li><a href="manage_users.php">Manage Users</a></li>
+        <li><a href="manage_vet.php">Manage Vet</a></li>
+        <li><a href="manage_pets.php">Manage Pets</a></li>
+        <li><a href="adoption_request.php">Adoption Requests</a></li>
+        <li><a href="admin_appointments.php">Appointments</a></li>
+    </ul>
+        <a href="../logout.php" class="logout-button">Logout</a>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
+        <h1>Manage Pets <a href="add_pet.php" class="add-btn">+ Add New Pet</a></h1>
 
-        <h1>Manage Pets 
-            <a href="add_pet.php" class="add-btn">+ Add New Pet</a>
-        </h1>
-
+        <!-- Available Pets Table -->
+        <h2>Available Pets</h2>
         <table>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>Status</th>
-                <th>Species</th>
-                <th>Breed</th>
-                <th>Adoption Fee (NPR)</th>
-                <th>Pet Shop</th>
-                <th>Action</th>
-            </tr>
-
-            <?php while($pet = $pets->fetch_assoc()): ?>
-            <tr>
-                <td><?= $pet['pet_id'] ?></td>
-                <td><?= htmlspecialchars($pet['pet_name']) ?></td>
-                <td><?= $pet['age'] ?></td>
-                <td><?= htmlspecialchars($pet['gender']) ?></td>
-                <td><?= htmlspecialchars($pet['status']) ?></td>
-                <td><?= htmlspecialchars($pet['species']) ?></td>
-                <td><?= htmlspecialchars($pet['breed']) ?></td>
-                <td>रु <?= number_format($pet['adoption_fee'], 2) ?></td>
-                <td><?= htmlspecialchars($shop_name) ?></td>
-                <td>
-                    <a class="action" href="edit_pet.php?id=<?= $pet['pet_id'] ?>">Edit</a> | 
-                    <a class="delete-link" href="delete_pet.php?id=<?= $pet['pet_id'] ?>" 
-                       onclick="return confirm('Delete this pet?\nThis cannot be undone!')">
-                       Delete
-                    </a>
-                </td>
-            </tr>
+            <thead>
+                <tr>
+                    <th>ID</th><th>Name</th><th>Age</th><th>Species</th><th>Breed</th>
+                    <th>Gender</th><th>Status</th><th>Adoption Fee</th><th>Pet Shop</th><th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php while ($pet = $available_pets->fetch_assoc()): ?>
+                <tr>
+                    <td><?= $pet['pet_id'] ?></td>
+                    <td><?= htmlspecialchars($pet['name']) ?></td>
+                    <td>
+                        <?php
+                        if (!empty($pet['dob'])) {
+                            $age = floor((time() - strtotime($pet['dob'])) / (365*24*60*60));
+                            echo $age . ' yrs';
+                        } else { echo 'N/A'; }
+                        ?>
+                    </td>
+                    <td><?= htmlspecialchars($pet['species'] ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($pet['breed'] ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($pet['gender']) ?></td>
+                    <td><?= htmlspecialchars($pet['status']) ?></td>
+                    <td>Rs <?= number_format($pet['adoption_fee'], 2) ?></td>
+                    <td><?= htmlspecialchars($shop_name) ?></td>
+                    <td>
+                        <a class="action" href="edit_pet.php?id=<?= $pet['pet_id'] ?>">Edit</a>
+                        <a class="delete-link" href="delete_pet.php?id=<?= $pet['pet_id'] ?>" onclick="return confirm('Delete this pet?')">Delete</a>
+                    </td>
+                </tr>
             <?php endwhile; ?>
+            </tbody>
+        </table>
 
+        <!-- Adopted Pets Table -->
+        <h2>Adopted Pets</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th><th>Name</th><th>Age</th><th>Species</th><th>Breed</th>
+                    <th>Gender</th><th>Status</th><th>Adoption Fee</th><th>Pet Shop</th><th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php while ($pet = $adopted_pets->fetch_assoc()): ?>
+                <tr>
+                    <td><?= $pet['pet_id'] ?></td>
+                    <td><?= htmlspecialchars($pet['name']) ?></td>
+                    <td>
+                        <?php
+                        if (!empty($pet['dob'])) {
+                            $age = floor((time() - strtotime($pet['dob'])) / (365*24*60*60));
+                            echo $age . ' yrs';
+                        } else { echo 'N/A'; }
+                        ?>
+                    </td>
+                    <td><?= htmlspecialchars($pet['species'] ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($pet['breed'] ?? 'N/A') ?></td>
+                    <td><?= htmlspecialchars($pet['gender']) ?></td>
+                    <td><?= htmlspecialchars($pet['status']) ?></td>
+                    <td>Rs <?= number_format($pet['adoption_fee'], 2) ?></td>
+                    <td><?= htmlspecialchars($shop_name) ?></td>
+                    <td>
+                        <a class="action" href="edit_pet.php?id=<?= $pet['pet_id'] ?>">Edit</a>
+                        <a class="delete-link" href="delete_pet.php?id=<?= $pet['pet_id'] ?>" onclick="return confirm('Delete this pet?')">Delete</a>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+            </tbody>
         </table>
 
     </div>
-
 </div>
 
 </body>

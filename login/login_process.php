@@ -1,55 +1,66 @@
 <?php
 session_start();
-include(__DIR__ . '/../db.php');
+include('../db.php');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = trim($_POST['username']);
+    $username = $_POST['username'];
     $password = $_POST['password'];
-    $user_type = $_POST['user_type'];
 
-    $errors = [];
+    /* ================== 1️⃣ CHECK ADMIN ================== */
+    $stmt = $conn->prepare(
+        "SELECT admin_id, password FROM admin WHERE admin_name = ? LIMIT 1"
+    );
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $admin = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
 
-    if (empty($username)) $errors[] = "Username is required";
-    if (empty($password)) $errors[] = "Password is required";
-    if (empty($user_type)) $errors[] = "User type is required";
-
-    if (empty($errors)) {
-        $sql = "SELECT * FROM users WHERE user_name = ? AND user_type = ? LIMIT 1";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ss", $username, $user_type);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows === 1) {
-            $user = $result->fetch_assoc();
-            if (password_verify($password, $user['password'])) {
-                $_SESSION['user_id'] = $user['user_id'];
-                $_SESSION['user_name'] = $user['user_name'];
-                $_SESSION['user_type'] = $user['user_type'];
-
-                // Redirect
-                switch ($user_type) {
-                    case 'admin': header("Location: ../Admin/Admin_dashboard.php"); break;
-                    case 'vet': header("Location: ../Vet/Vet_dashboard.php"); break;
-                    case 'shelter': header("Location: ../Shelter/Shelter_dashboard.php"); break;
-                    default: header("Location: ../User/User_dashboard.php");
-                }
-                exit;
-            } else {
-                $errors[] = "Incorrect password";
-            }
-        } else {
-            $errors[] = "No account found with that username and user type";
-        }
-
-        $stmt->close();
+    // Plain text comparison
+    if ($admin && $password === $admin['password']) {
+        $_SESSION['user_id'] = $admin['admin_id'];
+        $_SESSION['user_type'] = 'admin';
+        header("Location: ../Admin/Admin_dashboard.php");
+        exit;
     }
 
-    $_SESSION['login_errors'] = $errors;
+    /* ================== 2️⃣ CHECK VET ================== */
+    $stmt = $conn->prepare(
+        "SELECT vet_id, password FROM vet WHERE username = ? LIMIT 1"
+    );
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $vet = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if ($vet && md5($password) === $vet['password']) {
+        $_SESSION['user_id'] = $vet['vet_id'];
+        $_SESSION['user_type'] = 'vet';
+        header("Location: ../Vet/Vet_dashboard.php");
+        exit;
+    }
+
+    /* ================== 3️⃣ CHECK USERS ================== */
+    $stmt = $conn->prepare(
+        "SELECT user_id, password, user_type FROM users WHERE user_name = ? LIMIT 1"
+    );
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $user = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if ($user && password_verify($password, $user['password'])) {
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['user_type'] = $user['user_type'];
+
+        switch ($user['user_type']) {
+
+            case 'admin': header("Location: ../Admin/Admin_dashboard.php"); exit;
+            case 'user': header("Location: ../User/User_dashboard.php"); exit;
+        }
+    }
+
+    /* ================== LOGIN FAILED ================== */
+    $_SESSION['login_errors'] = ["Invalid username or password."];
     header("Location: login.php");
     exit;
 }
-
-header("Location: login.php");
-exit;
-?>

@@ -111,7 +111,7 @@ tr:nth-child(even) {
   <nav class="navbar">
     <ul>
       <li><a href="../pet/pet.php">Browse Pets</a></li>
-      <li><a href="../vetf/VET_FORM.html">Vet Services</a></li>
+      <li><a href="../user/vet_booking.php">Vet Services</a></li>
       <li><a href="#">Contact</a></li>
     </ul>
   </nav>
@@ -122,7 +122,7 @@ tr:nth-child(even) {
 
   <!-- SIDEBAR -->
   <div class="sidebar">
-    <div class="sidebar-logo"><h2>Buddy</h2></div>
+    
     <ul class="sidebar-nav">
       <li><a href="User_dashboard.php">Dashboard</a></li>
       <li><a href="my_pets.php">My Pets</a></li>
