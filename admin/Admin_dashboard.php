@@ -1,11 +1,11 @@
 <?php
 session_start();
 include(__DIR__ . '/../db.php');
+
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] != 'admin') {
     header("Location: ../login/login.php");
     exit;
 }
-
 
 function getCount($conn, $table) {
     $result = $conn->query("SELECT COUNT(*) AS total FROM $table");
@@ -17,6 +17,7 @@ $total_users = getCount($conn, "users");
 $total_pets = getCount($conn, "pet");
 $total_shops = 1;
 $total_applications = getCount($conn, "adoption_application");
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_adoption'])) {
 
     $adoption_id    = $_POST['adoption_id'];
@@ -59,53 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_adoption'])) {
 
     header("Location: admin_dashboard.php");
     exit;
-
-    $adoption_id    = $_POST['adoption_id'];
-    $status         = $_POST['status'];          // Pending / Approved / Rejected
-    $payment_status = $_POST['payment_status'];  // Paid / Unpaid
-
-    /* 1️ Update adoption_application */
-    $stmt = $conn->prepare("
-        UPDATE adoption_application
-        SET status = ?, payment_status = ?
-        WHERE adoption_id = ?
-    ");
-    $stmt->bind_param("ssi", $status, $payment_status, $adoption_id);
-    $stmt->execute();
-    $stmt->close();
-
-    /* 2️ Get pet_id for this adoption */
-    $stmt = $conn->prepare("
-        SELECT pet_id FROM adoption_application WHERE adoption_id = ?
-    ");
-    $stmt->bind_param("i", $adoption_id);
-    $stmt->execute();
-    $stmt->bind_result($pet_id);
-    $stmt->fetch();
-    $stmt->close();
-
-    /* 3️ Decide pet status (BEGINNER LOGIC) */
-    if ($status === 'Approved' && $payment_status === 'Paid') {
-        // Adoption completed
-        $stmt = $conn->prepare("
-            UPDATE pet SET status = 'Adopted' WHERE pet_id = ?
-        ");
-    } else {
-        // Not fully completed
-        $stmt = $conn->prepare("
-            UPDATE pet SET status = 'Available' WHERE pet_id = ?
-        ");
-    }
-
-    $stmt->bind_param("i", $pet_id);
-    $stmt->execute();
-    $stmt->close();
-
-    header("Location: admin_dashboard.php");
-    exit;
 }
 
-/* ================= FETCH ADOPTION APPLICATIONS (LAST 7 DAYS) ================= */
 $applications = $conn->query("
     SELECT aa.adoption_id, aa.status, aa.payment_status, aa.adoption_date,
            u.name AS user_name,
@@ -141,7 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['appointment_id'])) {
 
 $vetAppointments = $conn->query("
     SELECT va.*, u.name AS user_name, p.name AS pet_name, v.username AS vet_name
-
     FROM vet_appointments va
     JOIN users u ON va.user_id = u.user_id
     JOIN pet p ON va.pet_id = p.pet_id
@@ -155,6 +110,7 @@ $vets_arr = [];
 while ($v = $vets->fetch_assoc()) {
     $vets_arr[$v['vet_id']] = $v['username'];
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -179,10 +135,9 @@ while ($v = $vets->fetch_assoc()) {
     <a href="../logout.php" class="logout-button">Logout</a>
 </div>
 
-<!-- ========== MAIN CONTENT ========== -->
+
 <div class="main-content">
 
-<!-- DASHBOARD CARDS -->
 <div class="cards-grid">
     <div class="card"><h3>Total Users</h3><p><?= $total_users ?></p></div>
     <div class="card"><h3>Total Pets</h3><p><?= $total_pets ?></p></div>
@@ -229,7 +184,6 @@ while ($v = $vets->fetch_assoc()) {
 <?php endwhile; ?>
 </table>
 
-<<<<<<< HEAD
 
 <h2>Recent Vet Appointments </h2>
 
@@ -294,6 +248,8 @@ while ($v = $vets->fetch_assoc()) {
     </tr>
     <?php endwhile; ?>
 </table>
+
+
 </div>
 </div>
 </body>
