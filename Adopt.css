@@ -1,0 +1,76 @@
+* {
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #f0f8ff, #e6f0ff);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  background: white;
+  width: 400px;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #2a4d8f;
+}
+
+.adoption-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+}
+
+.adoption-form input{
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  transition: border 0.3s;
+}
+
+
+button {
+  width: 100%;
+  background: #2a4d8f;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1e3770;
+}
+
+.back-link {
+  display: block;
+  margin-top: 20px;
+  color:#6c5137;
+  text-decoration: none;
+  font-weight: 500;
+  text-align: center;
+}
+
+.back-link:hover {
+  color: #2c7a7b;
+  text-decoration: underline;
+}
