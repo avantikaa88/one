@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-/* ---------- FETCH APPOINTMENTS ---------- */
+/* ---------- FETCH VET APPOINTMENTS (LAST 7 DAYS) ---------- */
 $vetAppointments = $conn->query("
     SELECT 
         va.id,
@@ -60,23 +60,21 @@ $vetAppointments = $conn->query("
     FROM vet_appointments va
     JOIN users u ON va.user_id = u.user_id
     JOIN pet p ON va.pet_id = p.pet_id
+    WHERE va.created_at >= NOW() - INTERVAL 7 DAY
     ORDER BY va.created_at DESC
 ");
 
-/* ---------- FETCH VETS ---------- */
-/* If your vet table uses username instead of name, change `name` to `username` */
 /* ---------- FETCH VETS ---------- */
 $vets = $conn->query("
     SELECT vet_id, username 
     FROM vet
 ");
 $vets_arr = [];
-
 while ($vet = $vets->fetch_assoc()) {
     $vets_arr[$vet['vet_id']] = $vet['username'];
 }
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

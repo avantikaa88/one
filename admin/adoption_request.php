@@ -149,7 +149,7 @@ $requests = $conn->query($query);
                         <td><?= $row['adoption_fee'] ? 'Rs '.$row['adoption_fee'] : '-' ?></td>
                         <td><?= htmlspecialchars($row['reason']) ?></td>
 
-                        <!-- ✅ FIXED IMAGE PATH -->
+                        <!-- Legal ID -->
                         <td>
                             <?php if($row['legal_id_image']): ?>
                                 <a href="../uploads/legal_ids/<?= htmlspecialchars($row['legal_id_image']) ?>" target="_blank">View</a>
@@ -158,17 +158,16 @@ $requests = $conn->query($query);
                             <?php endif; ?>
                         </td>
 
+                        <!-- Cancelled Reason -->
                         <td><?= htmlspecialchars($row['cancel_reason'] ?: '-') ?></td>
+
+                        <!-- Cancelled At (DATE ONLY) -->
                         <td><?= $row['cancelled_at'] ? date("d M Y", strtotime($row['cancelled_at'])) : '-' ?></td>
 
-                        <!-- ✅ SAFELY DISPLAY ADOPTION DATE -->
-                        <td>
-                            <?php 
-                                $adate = strtotime($row['adoption_date']);
-                                echo $adate ? date("d M Y, H:i", $adate) : '-';
-                            ?>
-                        </td>
+                        <!-- Adoption Date (DATE ONLY) -->
+                        <td><?= $row['adoption_date'] ? date("d M Y", strtotime($row['adoption_date'])) : '-' ?></td>
 
+                        <!-- Actions -->
                         <td>
                             <?php if($row['status'] === 'Pending'): ?>
                                 <form method="POST" style="display:inline-block;">
@@ -176,7 +175,6 @@ $requests = $conn->query($query);
                                     <button type="submit" name="action" value="approve" class="btn approve-btn">Approve</button>
                                     <button type="submit" name="action" value="reject" class="btn reject-btn">Reject</button>
                                 </form>
-
                             <?php elseif($row['status'] === 'Approved'): ?>
                                 <form method="POST" style="display:inline-block;">
                                     <input type="hidden" name="adoption_id" value="<?= $row['adoption_id'] ?>">

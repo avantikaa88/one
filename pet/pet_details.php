@@ -2,12 +2,14 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
+// Validate Pet ID
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     die('Pet ID is required');
 }
 
 $pet_id = intval($_GET['id']); 
 
+// Fetch pet details
 $stmt = $conn->prepare("
     SELECT p.*, pt.species, pt.breed AS type_breed, pt.size, pt.life_span
     FROM pet p
@@ -23,24 +25,34 @@ if ($result->num_rows === 0) die('Pet not found');
 $pet = $result->fetch_assoc();
 
 // Handle image
-$imageSrc = '../picture/happy.png'; // default image
+$defaultImg = '../picture/happy.png';
+$imageSrc = $defaultImg; // default
 if (!empty($pet['image'])) {
-    $img = trim($pet['image']);
-    if (filter_var($img, FILTER_VALIDATE_URL)) {
-        $imageSrc = $img;
+    $imgPath = trim($pet['image']);
+    // If it's a URL
+    if (filter_var($imgPath, FILTER_VALIDATE_URL)) {
+        $imageSrc = $imgPath;
     } else {
-        // Correct relative path from this file
-        $imageSrc = '../' . $img; // works if $pet['image'] = 'uploads/filename.jpg'
+        // Check if file exists
+        $fullPath = __DIR__ . '/../' . $imgPath;
+        if (file_exists($fullPath)) {
+            $imageSrc = '../' . ltrim($imgPath, '/');
+        }
     }
 }
 
-// Calculate age from DOB
+// Calculate age
 $age = 'Unknown';
-if(!empty($pet['dob'])){
+if (!empty($pet['dob']) && $pet['dob'] !== '0000-00-00') {
     $dob = new DateTime($pet['dob']);
     $today = new DateTime();
     $age = $today->diff($dob)->y . ' years';
 }
+
+// Added date
+$addedDate = !empty($pet['created_at']) && $pet['created_at'] !== '0000-00-00 00:00:00'
+             ? date('F j, Y', strtotime($pet['created_at']))
+             : 'Unknown';
 ?>
 
 <!DOCTYPE html>
@@ -106,13 +118,7 @@ if(!empty($pet['dob'])){
                 <tr><td>Life Span:</td><td><?= htmlspecialchars($pet['life_span'] ?? 'Unknown'); ?></td></tr>
                 <tr><td>Status:</td><td class="status-available"><?= htmlspecialchars($pet['status']); ?></td></tr>
                 <tr><td>Description:</td><td><?= htmlspecialchars($pet['description'] ?? 'No description available'); ?></td></tr>
-                <tr>
-    <td>Added on:</td>
-    <td>
-        <?= !empty($pet['created_at']) ? date('F j, Y', strtotime($pet['created_at'])) : 'Unknown'; ?>
-    </td>
-</tr>
-
+                <tr><td>Added on:</td><td><?= $addedDate ?></td></tr>
             </table>
 
             <div class="buttons">
@@ -127,3 +133,8 @@ if(!empty($pet['dob'])){
 
 </body>
 </html>
+
+<?php
+$stmt->close();
+$conn->close();
+?>
