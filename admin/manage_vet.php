@@ -2,6 +2,7 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
+// ---------------- AUTH CHECK ----------------
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
     header("Location: ../login/login.php");
     exit;
@@ -22,37 +23,41 @@ if (isset($_GET['delete'])) {
 
 /* ================= FETCH VETS ================= */
 $vets = $conn->query("
-    SELECT vet_id, username, email, specialization, licence_no,
-           clinic_location, availability, experience, contact_info
+    SELECT vet_id, email, specialization, licence_no,
+           clinic_location, availability, experience, contact_info, created_at
     FROM vet
     ORDER BY vet_id DESC
 ");
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Manage Vet</title>
-    <link rel="stylesheet" href="admin.css">
-    <style>
-        .add-button, .edit-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #8B4513;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        .add-button:hover, .edit-button:hover {
-            background-color: #a0522d;
-        }
-        table th, table td { text-align: center; }
-        .action-buttons a { margin: 0 5px; text-decoration: none; font-weight: bold; }
-        .delete-btn { color: red; }
-        .edit-btn { color: green; }
-    </style>
+<meta charset="UTF-8">
+<title>Manage Vet</title>
+<link rel="stylesheet" href="admin.css">
+<style>
+    .add-button, .edit-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #8B4513;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+    .add-button:hover, .edit-button:hover {
+        background-color: #a0522d;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    table th, table td { text-align: center; padding: 10px; border: 1px solid #ccc; }
+    th { background: #8B5826; color: white; }
+    tr:nth-child(even) { background: #f7f7f7; }
+    .action-buttons a { margin: 0 5px; font-weight: bold; text-decoration: none; }
+    .delete-btn { color: red; }
+    .edit-btn { color: green; }
+</style>
 </head>
 <body>
 
@@ -84,10 +89,9 @@ $vets = $conn->query("
 
 <h2>Vet List</h2>
 
-<table width="100%" cellpadding="10" cellspacing="0" border="1">
-    <tr style="background:#8B4513;color:white;">
+<table width="100%" cellpadding="10" cellspacing="0">
+    <tr>
         <th>ID</th>
-        <th>Name</th>
         <th>Email</th>
         <th>Specialization</th>
         <th>Licence</th>
@@ -95,6 +99,7 @@ $vets = $conn->query("
         <th>Availability</th>
         <th>Experience</th>
         <th>Contact</th>
+        <th>Added Date</th>
         <th>Action</th>
     </tr>
 
@@ -102,7 +107,6 @@ $vets = $conn->query("
         <?php while ($row = $vets->fetch_assoc()): ?>
             <tr>
                 <td><?= $row['vet_id'] ?></td>
-                <td><?= htmlspecialchars($row['username']) ?></td>
                 <td><?= htmlspecialchars($row['email']) ?></td>
                 <td><?= htmlspecialchars($row['specialization']) ?></td>
                 <td><?= htmlspecialchars($row['licence_no']) ?></td>
@@ -110,6 +114,9 @@ $vets = $conn->query("
                 <td><?= htmlspecialchars($row['availability']) ?></td>
                 <td><?= $row['experience'] ?> yrs</td>
                 <td><?= htmlspecialchars($row['contact_info']) ?></td>
+                <td>
+                    <?= !empty($row['created_at']) ? date("M d, Y", strtotime($row['created_at'])) : 'N/A'; ?>
+                </td>
                 <td class="action-buttons">
                     <a href="edit_vet.php?id=<?= $row['vet_id'] ?>" class="edit-btn">Edit</a>
                     <a href="?delete=<?= $row['vet_id'] ?>" class="delete-btn" onclick="return confirm('Delete this vet?')">Delete</a>
