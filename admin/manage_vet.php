@@ -35,28 +35,12 @@ $vets = $conn->query("
 <head>
 <meta charset="UTF-8">
 <title>Manage Vet</title>
-<link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="adminn.css">
 <style>
-    .add-button, .edit-button {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #8B4513;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        font-weight: bold;
-    }
-    .add-button:hover, .edit-button:hover {
-        background-color: #a0522d;
-    }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    table th, table td { text-align: center; padding: 10px; border: 1px solid #ccc; }
-    th { background: #8B5826; color: white; }
-    tr:nth-child(even) { background: #f7f7f7; }
-    .action-buttons a { margin: 0 5px; font-weight: bold; text-decoration: none; }
-    .delete-btn { color: red; }
-    .edit-btn { color: green; }
+   
+    
+
+
 </style>
 </head>
 <body>
@@ -118,8 +102,8 @@ $vets = $conn->query("
                     <?= !empty($row['created_at']) ? date("M d, Y", strtotime($row['created_at'])) : 'N/A'; ?>
                 </td>
                 <td class="action-buttons">
-                    <a href="edit_vet.php?id=<?= $row['vet_id'] ?>" class="edit-btn">Edit</a>
-                    <a href="?delete=<?= $row['vet_id'] ?>" class="delete-btn" onclick="return confirm('Delete this vet?')">Delete</a>
+                    <a href="edit_vet.php?id=<?= $row['vet_id'] ?>" class="action">Edit</a>
+                    <a href="?delete=<?= $row['vet_id'] ?>" class="delete-link" onclick="return confirm('Delete this vet?')">Delete</a>
                 </td>
             </tr>
         <?php endwhile; ?>

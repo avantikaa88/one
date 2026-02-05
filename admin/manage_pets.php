@@ -40,21 +40,8 @@ $shop_name = "Buddy Pet Shop";
 <head>
 <meta charset="UTF-8">
 <title>Manage Pets</title>
-<link rel="stylesheet" href="admin.css">
-<style>
-.add-btn { padding: 5px 15px; background: #00a8ff; color: #fff; border-radius: 5px; text-decoration: none; float: right; }
-.add-btn:hover { background: #0097e6; }
+<link rel="stylesheet" href="adminn.css">
 
-table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 40px; }
-th, td { padding: 12px; border: 1px solid #ccc; text-align: left; }
-th { background: #8a5826; color: #fff; }
-tr:nth-child(even) { background: #f7f7f7; }
-
-a.action { color:#00a8ff; text-decoration:none; margin-right: 5px; }
-a.action:hover { text-decoration: underline; }
-a.delete-link { color: #e84118; text-decoration: none; }
-a.delete-link:hover { color: #c23616; }
-</style>
 </head>
 <body>
 
@@ -64,10 +51,10 @@ a.delete-link:hover { color: #c23616; }
     <div class="sidebar">
         <h2>Buddy Admin</h2>
         <ul>
-            <li><a class="active" href="admin_dashboard.php">Dashboard</a></li>
+            <li><a  href="admin_dashboard.php">Dashboard</a></li>
             <li><a href="manage_users.php">Manage Users</a></li>
             <li><a href="manage_vet.php">Manage Vet</a></li>
-            <li><a href="manage_pets.php">Manage Pets</a></li>
+            <li><a class="active" href="manage_pets.php">Manage Pets</a></li>
             <li><a href="adoption_request.php">Adoption Requests</a></li>
             <li><a href="admin_appointments.php">Appointments</a></li>
         </ul>
@@ -76,7 +63,7 @@ a.delete-link:hover { color: #c23616; }
 
     <!-- Main Content -->
     <div class="main-content">
-        <h1>Manage Pets <a href="add_pet.php" class="add-btn">+ Add New Pet</a></h1>
+        <h1>Manage Pets <a href="add_pet.php" class="add-button">+ Add New Pet</a></h1>
 
         <!-- Available Pets -->
         <h2>Available Pets</h2>

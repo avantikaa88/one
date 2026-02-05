@@ -113,48 +113,7 @@ while ($v = $vets->fetch_assoc()) {
 <html>
 <head>
 <title>Admin Dashboard</title>
-<link rel="stylesheet" href="admin.css">
-
-<style>
-table { 
-    width:100%; 
-    border-collapse:collapse; 
-    background:#fff; 
-    border-radius:6px; 
-    overflow:hidden; 
-    margin-bottom:20px; 
-} 
-th, td { 
-    padding:10px; 
-    text-align:center; 
-    border-bottom:1px solid #ddd; 
-}
-th { 
-    background:#8B4513; 
-    color:#fff; 
-}
-.status-Pending { color:orange; font-weight:bold; }
-.status-Approved { color:green; font-weight:bold; }
-.status-Cancelled { color:red; font-weight:bold; }
-
-/* Simple button styles */
-.button { 
-    padding:6px 16px; 
-    border:none; 
-    border-radius:20px; 
-    color:#fff; 
-    cursor:pointer; 
-    margin:2px; 
-    font-weight:bold; 
-}
-.button-approve { background:#28a745; }
-.button-approve:hover { background:#218838; }
-.button-reject { background:#dc3545; }
-.button-reject:hover { background:#c82333; }
-.button-update { background:#007bff; }
-.button-update:hover { background:#0069d9; }
-select { padding:6px; border-radius:6px; }
-</style>
+<link rel="stylesheet" href="adminn.css">
 </head>
 <body>
 
