@@ -96,55 +96,17 @@ $recent_result = $stmt->get_result();
 <meta charset="UTF-8">
 <title>Vet Dashboard | Buddy</title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
-body { background:#f5f6fa; }
+<link rel="stylesheet" href="vet.css">
 
-/* Sidebar */
-.sidebar {
-    width:240px; height:100vh; background:#2f3640; color:#fff;
-    position:fixed; padding:20px; display:flex; flex-direction:column; justify-content:space-between;
-}
-.sidebar h2 { text-align:center; margin-bottom:20px; }
-.sidebar a { display:block; color:#fff; text-decoration:none; padding:12px; border-radius:6px; margin-bottom:5px; }
-.sidebar a:hover { background:#353b48; }
-
-/* Main Content */
-.main-content { margin-left:260px; padding:30px; }
-.card { background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:20px; }
-
-/* Appointment Cards */
-.appointment-card {
-    display:flex; justify-content:space-between; background:#fff; padding:15px;
-    border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:15px;
-}
-
-/* Status badges */
-.status-badge { padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold; margin-right:5px; }
-.status-Pending { background:#ffe58f; }
-.status-Confirmed { background:#b8f2b8; }
-.status-Unpaid { background:#fab1a0; }
-.status-Paid { background:#81ecec; }
-.status-Pending-Service { background:#ffeaa7; }
-.status-Completed-Service { background:#55efc4; }
-
-/* Buttons */
-button.approve { background:#2ecc71; color:#fff; border:none; padding:6px 10px; border-radius:5px; margin-right:5px; }
-button.delete { background:#e74c3c; color:#fff; border:none; padding:6px 10px; border-radius:5px; margin-right:5px; }
-button.pay { background:#3498db; color:#fff; border:none; padding:6px 10px; border-radius:5px; margin-right:5px; }
-button.complete { background:#1abc9c; color:#fff; border:none; padding:6px 10px; border-radius:5px; margin-right:5px; }
-
-/* Inputs */
-input[type=date], input[type=time] { padding:5px; border-radius:5px; border:1px solid #ccc; margin-right:5px; }
-</style>
 </head>
 <body>
 
 <div class="sidebar">
     <div>
         <h2>Buddy Vet</h2>
-        <a href="vet_dashboard.php"><i class="fas fa-home"></i> Dashboard</a>
+        <a class="active"  href="vet_dashboard.php"><i class="fas fa-home"></i> Dashboard</a>
         <a href="vet_appointment.php"><i class="fas fa-calendar"></i> Appointments</a>
+        <a href="vet_pets.php"><i class="fas fa-paw"></i> Pets</a>
         <a href="../logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
     <div>

@@ -77,22 +77,13 @@ $requests = $conn->query($query);
 <html>
 <head>
     <title>Adoption Requests</title>
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="adminn.css">
     <style>
-        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
-        th, td { padding: 10px; text-align: center; border-bottom: 1px solid #ddd; }
-        th { background-color: #8B4513; color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-
-        .status-Pending { color: #ffa500; font-weight: bold; }
-        .status-Approved { color: #28a745; font-weight: bold; }
-        .status-Cancelled { color: #dc3545; font-weight: bold; }
-
-        .btn { padding: 5px 10px; border-radius: 4px; color: #fff; border: none; cursor: pointer; margin: 2px; }
-        .approve-btn { background-color: #28a745; }
-        .reject-btn { background-color: #dc3545; }
-        .update-btn { background-color: #007bff; }
-        .btn:hover { opacity: 0.9; }
+        .button { padding: 5px 10px; border-radius: 4px; color: #fff; border: none; cursor: pointer; margin: 2px; }
+        .approve-button { background-color: #28a745; }
+        .reject-button{ background-color: #dc3545; }
+        .update-button { background-color: #007bff; }
+        .button:hover { opacity: 0.9; }
         select { padding: 4px; border-radius: 4px; }
     </style>
 </head>
@@ -172,8 +163,8 @@ $requests = $conn->query($query);
                             <?php if($row['status'] === 'Pending'): ?>
                                 <form method="POST" style="display:inline-block;">
                                     <input type="hidden" name="adoption_id" value="<?= $row['adoption_id'] ?>">
-                                    <button type="submit" name="action" value="approve" class="btn approve-btn">Approve</button>
-                                    <button type="submit" name="action" value="reject" class="btn reject-btn">Reject</button>
+                                    <button type="submit" name="action" value="approve" class="button approve-button">Approve</button>
+                                    <button type="submit" name="action" value="reject" class="button reject-button">Reject</button>
                                 </form>
                             <?php elseif($row['status'] === 'Approved'): ?>
                                 <form method="POST" style="display:inline-block;">
@@ -182,7 +173,7 @@ $requests = $conn->query($query);
                                         <option value="Unpaid" <?= $row['payment_status']=='Unpaid'?'selected':'' ?>>Unpaid</option>
                                         <option value="Paid" <?= $row['payment_status']=='Paid'?'selected':'' ?>>Paid</option>
                                     </select>
-                                    <button type="submit" class="btn update-btn">Update Payment</button>
+                                    <button type="submit" class="button update-button">Update Payment</button>
                                 </form>
                             <?php else: ?>
                                 -
