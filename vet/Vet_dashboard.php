@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'vet') {
 }
 
 $vet_id = $_SESSION['user_id'];
-$today = date('Y-m-d'); // For appointment date min
+$today = date('Y-m-d'); // for min date input
 
 // ---------------- FETCH VET INFO ----------------
 $stmt = $conn->prepare("
@@ -25,11 +25,6 @@ $stmt->close();
 $vet_name = htmlspecialchars($vet_info['username'] ?? "N/A");
 $vet_email = htmlspecialchars($vet_info['email'] ?? "N/A");
 $vet_specialization = htmlspecialchars($vet_info['specialization'] ?? "N/A");
-$vet_experience = htmlspecialchars($vet_info['experience'] ?? "N/A");
-$vet_availability = htmlspecialchars($vet_info['availability'] ?? "N/A");
-$vet_clinic = htmlspecialchars($vet_info['clinic_location'] ?? "N/A");
-$vet_licence = htmlspecialchars($vet_info['licence_no'] ?? "N/A");
-$vet_contact = htmlspecialchars($vet_info['contact_info'] ?? "N/A");
 
 // ---------------- HANDLE APPOINTMENT ACTIONS ----------------
 if (isset($_POST['approve'], $_POST['appointment_id']) || 
@@ -40,9 +35,10 @@ if (isset($_POST['approve'], $_POST['appointment_id']) ||
     $appointment_id = intval($_POST['appointment_id']);
 
     if (isset($_POST['approve'])) {
+        // Approve and set date/time
         $stmt = $conn->prepare("
-            UPDATE vet_appointments 
-            SET status='Confirmed', appointment_date=?, appointment_time=? 
+            UPDATE vet_appointments
+            SET status='Confirmed', appointment_date=?, appointment_time=?
             WHERE id=? AND vet_id=?
         ");
         $stmt->bind_param("ssii", $_POST['appointment_date'], $_POST['appointment_time'], $appointment_id, $vet_id);
@@ -62,7 +58,6 @@ if (isset($_POST['approve'], $_POST['appointment_id']) ||
 
     $stmt->execute();
     $stmt->close();
-
     header("Location: vet_dashboard.php");
     exit;
 }
@@ -74,20 +69,20 @@ $stmt->execute();
 $total_appointments = $stmt->get_result()->fetch_assoc()['total_appointments'] ?? 0;
 $stmt->close();
 
-// ---------------- FETCH RECENT 5 APPOINTMENTS ----------------
+// ---------------- FETCH ASSIGNED PETS & APPOINTMENTS ----------------
 $stmt = $conn->prepare("
-    SELECT va.id, va.appointment_date, va.appointment_time, va.status, va.payment_status, va.service_status,
-           u.name AS user_name, p.name AS pet_name
+    SELECT va.id AS appointment_id, va.appointment_date, va.appointment_time, va.status, va.payment_status, va.service_status,
+           p.pet_id, p.name AS pet_name, u.name AS owner_name
     FROM vet_appointments va
-    JOIN users u ON va.user_id = u.user_id
     JOIN pet p ON va.pet_id = p.pet_id
-    WHERE va.vet_id=?
-    ORDER BY va.appointment_date DESC, va.appointment_time DESC
-    LIMIT 5
+    JOIN users u ON va.user_id = u.user_id
+    WHERE va.vet_id = ?
+    ORDER BY va.status ASC, va.appointment_date ASC, va.appointment_time ASC
 ");
 $stmt->bind_param("i", $vet_id);
 $stmt->execute();
-$recent_result = $stmt->get_result();
+$assigned_pets = $stmt->get_result();
+$stmt->close();
 ?>
 
 <!DOCTYPE html>
@@ -97,14 +92,32 @@ $recent_result = $stmt->get_result();
 <title>Vet Dashboard | Buddy</title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="vet.css">
+<style>
+/* Minimal styling for status badges */
+.status-badge { padding: 3px 8px; border-radius: 5px; color: white; font-size: 0.85em; margin-right: 5px; }
+.status-Pending { background-color: orange; }
+.status-Assigned { background-color: teal; }
+.status-Confirmed { background-color: green; }
+.status-Cancelled { background-color: red; }
+.status-Unpaid { background-color: red; }
+.status-Paid { background-color: blue; }
+.status-Pending-Service { background-color: orange; }
+.status-Completed-Service { background-color: green; }
 
+.appointment-card { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+button { margin-right: 5px; padding: 5px 10px; cursor: pointer; }
+.approve { background-color: green; color: white; border: none; }
+.pay { background-color: blue; color: white; border: none; }
+.complete { background-color: purple; color: white; border: none; }
+.delete { background-color: red; color: white; border: none; }
+</style>
 </head>
 <body>
 
 <div class="sidebar">
     <div>
         <h2>Buddy Vet</h2>
-        <a class="active"  href="vet_dashboard.php"><i class="fas fa-home"></i> Dashboard</a>
+        <a class="active" href="vet_dashboard.php"><i class="fas fa-home"></i> Dashboard</a>
         <a href="vet_appointment.php"><i class="fas fa-calendar"></i> Appointments</a>
         <a href="vet_pets.php"><i class="fas fa-paw"></i> Pets</a>
         <a href="../logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -125,31 +138,28 @@ $recent_result = $stmt->get_result();
 </div>
 
 <div class="card">
-    <h3>Recent Appointments</h3>
+    <h3>Assigned Pets & Appointments</h3>
 
-    <?php while ($row = $recent_result->fetch_assoc()): ?>
+    <?php while ($row = $assigned_pets->fetch_assoc()): ?>
     <div class="appointment-card">
         <div>
             <strong><?= htmlspecialchars($row['pet_name']) ?></strong><br>
-            Owner: <?= htmlspecialchars($row['user_name']) ?><br>
+            Owner: <?= htmlspecialchars($row['owner_name']) ?><br>
 
-            <?php if ($row['status'] === 'Confirmed' && !empty($row['appointment_date']) && !empty($row['appointment_time'])): ?>
+            <?php if (!empty($row['status']) && $row['status'] !== 'Pending'): ?>
                 Date: <?= htmlspecialchars($row['appointment_date']) ?><br>
                 Time: <?= htmlspecialchars($row['appointment_time']) ?><br>
             <?php endif; ?>
 
-            Status:
-            <span class="status-badge status-<?= $row['status'] ?>"><?= $row['status'] ?></span>
-            Payment:
-            <span class="status-badge status-<?= $row['payment_status'] ?>"><?= $row['payment_status'] ?></span>
-            Service:
-            <span class="status-badge status-<?= $row['service_status'] === 'Completed' ? 'Completed-Service' : 'Pending-Service' ?>"><?= $row['service_status'] ?></span>
+            Status: <span class="status-badge status-<?= $row['status'] ?>"><?= $row['status'] ?></span>
+            Payment: <span class="status-badge status-<?= $row['payment_status'] ?>"><?= $row['payment_status'] ?></span>
+            Service: <span class="status-badge status-<?= ($row['service_status'] === 'Completed') ? 'Completed-Service' : 'Pending-Service' ?>"><?= $row['service_status'] ?></span>
         </div>
 
         <form method="POST" style="margin-top:10px;">
-            <input type="hidden" name="appointment_id" value="<?= $row['id'] ?>">
+            <input type="hidden" name="appointment_id" value="<?= $row['appointment_id'] ?>">
 
-            <?php if ($row['status'] === 'Pending'): ?>
+            <?php if ($row['status'] === 'Pending' || $row['status'] === 'Assigned'): ?>
                 <input type="date" name="appointment_date" min="<?= $today ?>" required>
                 <input type="time" name="appointment_time" required>
                 <button type="submit" name="approve" class="approve">Approve</button>
