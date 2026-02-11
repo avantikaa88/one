@@ -2,13 +2,12 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
-// Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login/login.php");
     exit;
 }
 
-// Ensure user type is 'user'
+
 if ($_SESSION['user_type'] !== 'user') {
     switch ($_SESSION['user_type']) {
         case 'admin': header("Location: ../Admin/Admin_dashboard.php"); exit;
@@ -20,14 +19,14 @@ if ($_SESSION['user_type'] !== 'user') {
 
 $user_id = $_SESSION['user_id'];
 
-/* ---------------- USER INFO ---------------- */
+
 $stmt = $conn->prepare("SELECT user_name, email FROM users WHERE user_id = ? LIMIT 1");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-/* ---------------- ADOPTED PETS ONLY ---------------- */
+
 $stmt = $conn->prepare("
     SELECT p.pet_id, p.name, p.dob, p.gender, pt.species, pt.breed, a.status, p.adoption_fee, p.image
     FROM adoption_application a
@@ -50,23 +49,24 @@ $stmt->close();
 <link rel="stylesheet" href="User.css">
 <style>
 
-/* --- Pets Table --- */
 .table-container{background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.08);}
 table{width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden;}
 th,td{padding:12px 14px;border:1px solid #eee;text-align:center;}
 th{background:#2f3640;color:#fff;}
-tr:nth-child(even){background:#f7f7f7;}
+
 .status{padding:6px 12px;border-radius:20px;font-size:13px;font-weight:bold;color:#fff;}
 .approved{background:#4caf50;}
 img.pet-img{width:80px;height:60px;object-fit:cover;border-radius:6px;}
+
 .empty-appointments{text-align:center;margin-top:30px;}
 .empty-appointments button{padding:10px 18px;background:#3e2f24;color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;}
 .empty-appointments button:hover{background:#ce9a16;}
+
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
+
 <header>
   <div class="logo">
     <img src="../picture/Group.png" alt="Buddy Logo">
@@ -84,7 +84,7 @@ img.pet-img{width:80px;height:60px;object-fit:cover;border-radius:6px;}
 
 <div class="dashboard-container">
 
-  <!-- SIDEBAR -->
+  
   <div class="sidebar">
     <ul class="sidebar-nav">
       <li><a href="User_dashboard.php">Dashboard</a></li>
@@ -93,16 +93,17 @@ img.pet-img{width:80px;height:60px;object-fit:cover;border-radius:6px;}
       <li><a href="adoption_applications.php">Adoption Applications</a></li>
     </ul>
 
-    <div class="user-profile" onclick="window.location.href='user_profile.php'">
-      <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="User">
-      <div class="user-info">
-        <h4><?= htmlspecialchars($user['user_name']); ?></h4>
-        <p><?= htmlspecialchars($user['email']); ?></p>
-      </div>
-    </div>
+    <div class="user-profile">
+  <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="User">
+  <div class="user-info">
+    <h4><?= htmlspecialchars($user['user_name']); ?></h4>
+    <p><?= htmlspecialchars($user['email']); ?></p>
+  </div>
+</div>
+
   </div>
 
-  <!-- MAIN CONTENT -->
+
   <div class="main-content">
     <h2>My Adopted Pets</h2>
 
@@ -120,15 +121,26 @@ img.pet-img{width:80px;height:60px;object-fit:cover;border-radius:6px;}
         </tr>
 
         <?php foreach($pets as $pet):
-            $imageSrc = '../picture/happy.png';
+            // Image handling
+            $defaultImg = '../picture/happy.png';
+            $imageSrc = $defaultImg;
             if(!empty($pet['image'])){
                 $img = trim($pet['image']);
-                $imageSrc = filter_var($img, FILTER_VALIDATE_URL) ? $img : '../' . $img;
+                $fullPath = __DIR__ . '/../' . $img;
+                if(file_exists($fullPath)){
+                    $imageSrc = '../' . ltrim($img,'/'); // proper relative path
+                } elseif(filter_var($img, FILTER_VALIDATE_URL)){
+                    $imageSrc = $img;
+                }
             }
 
-            $dob = new DateTime($pet['dob']);
-            $today = new DateTime();
-            $age = $today->diff($dob)->y;
+           
+            $age = 'Unknown';
+            if(!empty($pet['dob']) && $pet['dob'] !== '0000-00-00'){
+                $dob = new DateTime($pet['dob']);
+                $today = new DateTime();
+                $age = $today->diff($dob)->y;
+            }
         ?>
         <tr>
           <td><img src="<?= $imageSrc ?>" alt="<?= htmlspecialchars($pet['name']) ?>" class="pet-img"></td>
