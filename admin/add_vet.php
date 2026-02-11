@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <form method="post" class="form-box">
 
-    <input type="text" name="username" placeholder="Vet Name" required>
+    <input type="text" name="username" placeholder="username" required>
     <input type="email" name="email" placeholder="Email" required>
     <input type="password" name="password" placeholder="Password" required>
 

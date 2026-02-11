@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $gender = $_POST['gender'] ?? '';
     $dob = $_POST['dob'] ?? '';
     $description = trim($_POST['description'] ?? '');
-    $adoption_fee = (float)($_POST['adoption_fee'] ?? 0);
+    $adoption_fee = isset($_POST['adoption_fee']) ? (float)$_POST['adoption_fee'] : -1; // Default -1 if not set
     $status = 'Available'; // FORCE STATUS
 
     // Handle pet type selection
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!in_array($gender, ['Male','Female'])) $errors[] = "Select valid gender.";
     if (!$dob || strtotime($dob) > time()) $errors[] = "Enter valid DOB.";
     if ($type_id <= 0) $errors[] = "Select valid pet type.";
-    if ($adoption_fee < 0) $errors[] = "Invalid adoption fee.";
+    if ($adoption_fee <= 0) $errors[] = "Adoption fee must be greater than 0."; // <- Changed validation
 
     /* ---------------- IMAGE UPLOAD ---------------- */
     $image_name = '';
@@ -151,45 +151,7 @@ legend { font-weight:bold; padding:0 10px; }
 .image-preview { margin:15px 0; text-align: center; }
 .image-preview img { max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 5px; padding: 5px; background: #f9f9f9; }
 </style>
-<script>
-function toggleTypeFields() {
-    const typeOption = document.querySelector('input[name="type_option"]:checked');
-    if (!typeOption) return;
 
-    const value = typeOption.value;
-    const existingSection = document.getElementById('existing-type-section');
-    const newSection = document.getElementById('new-type-section');
-
-    if (value === 'existing') {
-        existingSection.style.display = 'block';
-        newSection.style.display = 'none';
-    } else {
-        existingSection.style.display = 'none';
-        newSection.style.display = 'block';
-    }
-}
-
-function previewImage(event) {
-    const reader = new FileReader();
-    const preview = document.getElementById('image-preview');
-    const previewImg = document.getElementById('preview-img');
-
-    reader.onload = function() {
-        preview.style.display = 'block';
-        previewImg.src = reader.result;
-    }
-
-    if (event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    toggleTypeFields();
-    if (!document.querySelector('input[name="type_option"]:checked')) {
-        document.querySelector('input[name="type_option"][value="existing"]').checked = true;
-        toggleTypeFields();
-    }
-});
-</script>
 </head>
 <body>
 
@@ -274,7 +236,52 @@ if ($success) echo "<p class='success'>$success</p>";
     </div>
 
     <button type="submit">Add Pet</button>
-    <button type="reset" onclick="document.getElementById('image-preview').style.display='none';" style="background:#dc3545; margin-left:10px;">Reset Form</button>
+    <button type="button" onclick="resetForm()" style="background:#dc3545; margin-left:10px;">Reset Form</button>
+
+<script>
+function previewImage(event) {
+    const previewDiv = document.getElementById('image-preview');
+    const previewImg = document.getElementById('preview-img');
+    const file = event.target.files[0];
+    if(file) {
+        previewImg.src = URL.createObjectURL(file);
+        previewDiv.style.display = 'block';
+    } else {
+        previewImg.src = '';
+        previewDiv.style.display = 'none';
+    }
+}
+
+function toggleTypeFields() {
+    const existingSection = document.getElementById('existing-type-section');
+    const newSection = document.getElementById('new-type-section');
+    const typeOption = document.querySelector('input[name="type_option"]:checked').value;
+    if(typeOption === 'existing') {
+        existingSection.style.display = 'block';
+        newSection.style.display = 'none';
+    } else {
+        existingSection.style.display = 'none';
+        newSection.style.display = 'block';
+    }
+}
+
+// FULL RESET FUNCTION
+function resetForm() {
+    const form = document.querySelector('form');
+    form.reset();
+
+    // Hide image preview
+    const previewDiv = document.getElementById('image-preview');
+    const previewImg = document.getElementById('preview-img');
+    previewImg.src = '';
+    previewDiv.style.display = 'none';
+
+    // Reset pet type sections
+    document.getElementById('existing-type-section').style.display = 'block';
+    document.getElementById('new-type-section').style.display = 'none';
+}
+</script>
+
 </form>
 
 </body>
