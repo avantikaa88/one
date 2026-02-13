@@ -22,12 +22,12 @@ $user_id = $_SESSION['user_id'];
 $pet_id  = (int)($_POST['pet_id'] ?? 0);
 $reason  = trim($_POST['reason'] ?? '');
 
-if ($pet_id <= 0 || empty($reason)) {
+if ($pet_id <= 0) {
     die("Invalid submission.");
 }
 
 /* -------------------------------
-   CHECK PET EXISTS + FEE
+   CHECK PET EXISTS
 -------------------------------- */
 $petStmt = $conn->prepare("
     SELECT adoption_fee, status 
@@ -36,7 +36,8 @@ $petStmt = $conn->prepare("
 ");
 $petStmt->bind_param("i", $pet_id);
 $petStmt->execute();
-$pet = $petStmt->get_result()->fetch_assoc();
+$result = $petStmt->get_result();
+$pet = $result->fetch_assoc();
 $petStmt->close();
 
 if (!$pet) {
@@ -44,7 +45,7 @@ if (!$pet) {
 }
 
 if ($pet['status'] !== 'Available') {
-    die("This pet is not available for adoption.");
+    die("This pet is not available.");
 }
 
 $adoption_fee = $pet['adoption_fee'];
@@ -63,20 +64,20 @@ $exists = $check->get_result()->num_rows;
 $check->close();
 
 if ($exists > 0) {
-    $_SESSION['error'] = "You have already applied for this pet.";
+    $_SESSION['error'] = "You already applied for this pet.";
     header("Location: ../User/User_dashboard.php");
     exit;
 }
 
-
 /* -------------------------------
-   FILE UPLOAD (LEGAL ID)
+   FILE UPLOAD
 -------------------------------- */
 if (!isset($_FILES['legal_id_image']) || $_FILES['legal_id_image']['error'] !== 0) {
     die("Legal ID image is required.");
 }
 
 $upload_dir = "../uploads/legal_ids/";
+
 if (!is_dir($upload_dir)) {
     mkdir($upload_dir, 0777, true);
 }
@@ -85,18 +86,18 @@ $ext = strtolower(pathinfo($_FILES['legal_id_image']['name'], PATHINFO_EXTENSION
 $allowed = ['jpg', 'jpeg', 'png'];
 
 if (!in_array($ext, $allowed)) {
-    die("Only JPG, JPEG, and PNG images are allowed.");
+    die("Only JPG, JPEG, PNG allowed.");
 }
 
 $file_name = "legal_id_" . time() . "_" . rand(1000,9999) . "." . $ext;
 $file_path = $upload_dir . $file_name;
 
 if (!move_uploaded_file($_FILES['legal_id_image']['tmp_name'], $file_path)) {
-    die("Failed to upload legal ID image.");
+    die("Failed to upload image.");
 }
 
 /* -------------------------------
-   INSERT ADOPTION APPLICATION
+   INSERT APPLICATION
 -------------------------------- */
 $stmt = $conn->prepare("
     INSERT INTO adoption_application
@@ -113,17 +114,19 @@ $stmt = $conn->prepare("
     VALUES (?, ?, 'Pending', 'Unpaid', 0, ?, ?, ?)
 ");
 
+$reason_param = ($reason !== '') ? $reason : '';
+
 $stmt->bind_param(
     "iidss",
     $user_id,
     $pet_id,
     $adoption_fee,
-    $reason,
+    $reason_param,
     $file_name
 );
 
 if (!$stmt->execute()) {
-    die("Failed to submit adoption request.");
+    die("Insert failed: " . $stmt->error);
 }
 
 $stmt->close();
@@ -132,5 +135,6 @@ $stmt->close();
    SUCCESS
 -------------------------------- */
 $_SESSION['success'] = "Adoption request submitted successfully.";
-header("Location: /../userdashboard.php");
+header("Location: ../User/User_dashboard.php");
 exit;
+?>

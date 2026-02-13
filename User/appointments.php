@@ -2,7 +2,6 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
-/* ---------------- AUTH CHECK ---------------- */
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login/login.php");
     exit;
@@ -15,7 +14,6 @@ if ($_SESSION['user_type'] !== 'user') {
 
 $user_id = $_SESSION['user_id'];
 
-/* ---------------- FETCH APPOINTMENTS ---------------- */
 $appointments = [];
 
 $stmt = $conn->prepare("
@@ -39,11 +37,9 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 while ($row = $result->fetch_assoc()) {
-    // If vet is not assigned yet
     if (empty($row['vet_name'])) $row['vet_name'] = 'Not Assigned';
     $appointments[] = $row;
 }
-
 $stmt->close();
 ?>
 
@@ -75,22 +71,26 @@ $stmt->close();
     text-transform: uppercase;
     font-size: 12px;
 }
-.pending { background: #fff3cd; color: #856404; }
-.confirmed { background: #d4edda; color: #155724; }
-.completed { background: #cce5ff; color: #004085; }
-.cancelled { background: #f8d7da; color: #721c24; }
+.pending { background: #fff3cd;
+ color: #856404; }
+.confirmed { background: #d4edda; 
+color: #155724; }
+.completed { background: #cce5ff;
+ color: #004085; }
+.cancelled { background: #f8d7da; 
+color: #721c24; }
 
 .empty {
-    text-align: center;
-    margin-top: 60px;
+  text-align: center;
+  margin-top: 60px;
 }
 .empty button {
-    padding: 10px 15px;
-    border:none;
-    border-radius:5px;
-    background:#2ecc71;
-    color:#fff;
-    cursor:pointer;
+   padding: 10px 15px;
+  border:none;
+  border-radius:5px;
+  background:#2ecc71;
+  color:#fff;
+  cursor:pointer;
 }
 .empty button:hover {
     background:#27ae60;
@@ -116,8 +116,6 @@ $stmt->close();
 </header>
 
 <div class="dashboard-container">
-
-  <!-- Sidebar -->
   <div class="sidebar">
     <ul class="sidebar-nav">
       <li><a href="User_dashboard.php">Dashboard</a></li>
@@ -126,8 +124,6 @@ $stmt->close();
       <li><a href="adoption_applications.php">Adoption Applications</a></li>
     </ul>
   </div>
-
-  <!-- Main Content -->
   <div class="main-content">
     <h2>My Vet Appointments</h2>
 
@@ -171,7 +167,7 @@ $stmt->close();
         <div class="empty">
             <h3>No Appointments Found</h3>
             <p>You have not booked any vet appointments yet.</p>
-            <button onclick="window.location.href='../vet/vet_booking.php'">Book Vet Appointment</button>
+            <button onclick="window.location.href='vet_booking.php'">Book Vet Appointment</button>
         </div>
     <?php endif; ?>
 

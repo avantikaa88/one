@@ -93,7 +93,7 @@ $stmt->close();
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="vet.css">
 <style>
-/* Minimal styling for status badges */
+
 .status-badge { padding: 3px 8px; border-radius: 5px; color: white; font-size: 0.85em; margin-right: 5px; }
 .status-Pending { background-color: orange; }
 .status-Assigned { background-color: teal; }

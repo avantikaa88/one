@@ -2,13 +2,11 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
-// ---------------- AUTH CHECK ----------------
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
     header("Location: ../login/login.php");
     exit;
 }
 
-/* ================= HANDLE ACTIONS ================= */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $adoption_id = intval($_POST['adoption_id']);
@@ -33,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // ---------- PAYMENT UPDATE ----------
+    
     if (isset($_POST['payment_status'])) {
         $payment_status = $_POST['payment_status'];
         $stmt = $conn->prepare("UPDATE adoption_application SET payment_status = ? WHERE adoption_id = ?");
@@ -46,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-/* ================= FETCH ALL ADOPTION REQUESTS ================= */
+
 $query = "
     SELECT 
         aa.adoption_id,
@@ -90,8 +88,6 @@ $requests = $conn->query($query);
 
 <body>
 <div class="dashboard-container">
-
-    <!-- Sidebar -->
     <div class="sidebar">
         <h2>Buddy Admin</h2>
         <ul>
@@ -105,7 +101,7 @@ $requests = $conn->query($query);
         <a href="../logout.php" class="logout-button">Logout</a>
     </div>
 
-    <!-- Main Content -->
+    
     <div class="main-content">
         <h2>Adoption Requests</h2>
 
@@ -140,7 +136,6 @@ $requests = $conn->query($query);
                         <td><?= $row['adoption_fee'] ? 'Rs '.$row['adoption_fee'] : '-' ?></td>
                         <td><?= htmlspecialchars($row['reason']) ?></td>
 
-                        <!-- Legal ID -->
                         <td>
                             <?php if($row['legal_id_image']): ?>
                                 <a href="../uploads/legal_ids/<?= htmlspecialchars($row['legal_id_image']) ?>" target="_blank">View</a>
@@ -149,16 +144,16 @@ $requests = $conn->query($query);
                             <?php endif; ?>
                         </td>
 
-                        <!-- Cancelled Reason -->
+                        
                         <td><?= htmlspecialchars($row['cancel_reason'] ?: '-') ?></td>
 
-                        <!-- Cancelled At (DATE ONLY) -->
+                        
                         <td><?= $row['cancelled_at'] ? date("d M Y", strtotime($row['cancelled_at'])) : '-' ?></td>
 
-                        <!-- Adoption Date (DATE ONLY) -->
+                        
                         <td><?= $row['adoption_date'] ? date("d M Y", strtotime($row['adoption_date'])) : '-' ?></td>
 
-                        <!-- Actions -->
+                        
                         <td>
                             <?php if($row['status'] === 'Pending'): ?>
                                 <form method="POST" style="display:inline-block;">

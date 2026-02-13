@@ -1,14 +1,13 @@
 <?php
 session_start();
 include(__DIR__ . '/../db.php');
-
-// Redirect non-admin users
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] != 'admin') {
     header("Location: ../login/login.php");
     exit;
 }
 
-// Handle POST actions
+$allowed_status = ['Pending','Assigned','Confirmed','Cancelled','Completed'];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $appointment_id = intval($_POST['appointment_id'] ?? 0);
     $action = $_POST['action'] ?? '';
@@ -16,13 +15,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (($action === 'assign' || $action === 'change') && $vet_id) {
         $vet_id = intval($vet_id);
-        $stmt = $conn->prepare("UPDATE vet_appointments SET vet_id=?, status='Approved' WHERE id=?");
-        $stmt->bind_param("ii", $vet_id, $appointment_id);
+        $status = 'Assigned'; 
+        $stmt = $conn->prepare("UPDATE vet_appointments SET vet_id=?, status=? WHERE id=?");
+        $stmt->bind_param("isi", $vet_id, $status, $appointment_id);
         $stmt->execute();
         $stmt->close();
     } elseif ($action === 'cancel') {
-        $stmt = $conn->prepare("UPDATE vet_appointments SET status='Cancelled' WHERE id=?");
-        $stmt->bind_param("i", $appointment_id);
+        $status = 'Cancelled'; 
+        $stmt = $conn->prepare("UPDATE vet_appointments SET status=? WHERE id=?");
+        $stmt->bind_param("si", $status, $appointment_id);
         $stmt->execute();
         $stmt->close();
     }
@@ -31,7 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// Fetch appointments
 $vetAppointments = $conn->query("
     SELECT va.*, u.name AS user_name, p.name AS pet_name
     FROM vet_appointments va
@@ -40,7 +40,6 @@ $vetAppointments = $conn->query("
     ORDER BY va.appointment_date DESC, va.appointment_time ASC
 ");
 
-// Fetch vets
 $vets_arr = [];
 $vets = $conn->query("SELECT vet_id, username FROM vet");
 while ($v = $vets->fetch_assoc()) {
@@ -54,7 +53,14 @@ while ($v = $vets->fetch_assoc()) {
 <meta charset="UTF-8">
 <title>Admin - Vet Appointments</title>
 <link rel="stylesheet" href="adminn.css">
+<style>
 
+.status-Pending { color: orange; }
+.status-Assigned { color: blue; }
+.status-Confirmed { color: green; }
+.status-Cancelled { color: red; }
+.status-Completed { color: gray; }
+</style>
 </head>
 <body>
 <div class="dashboard-container">
@@ -87,18 +93,19 @@ while ($v = $vets->fetch_assoc()) {
                 <td class="status-<?= $row['status'] ?>"><?= $row['status'] ?></td>
                 <td><?= ($row['vet_id'] && isset($vets_arr[$row['vet_id']])) ? htmlspecialchars($vets_arr[$row['vet_id']]) : 'Not Assigned' ?></td>
                 <td class="action-buttons">
-                    <?php if($row['status']!='Cancelled'): ?>
+                    <?php if($row['status'] != 'Cancelled' && $row['status'] != 'Completed'): ?>
                         <form method="post" style="display:inline;">
                             <input type="hidden" name="appointment_id" value="<?= $row['id'] ?>">
-                            <input type="hidden" name="action" value="<?= $row['vet_id'] ? 'change' : 'assign' ?>">
+                            <input type="hidden" name="action" value="<?= ($row['vet_id']) ? 'change' : 'assign' ?>">
                             <select name="vet_id" required>
                                 <option value="">-- Select Vet --</option>
                                 <?php foreach($vets_arr as $vet_id => $vet_name): ?>
                                     <option value="<?= $vet_id ?>" <?= ($row['vet_id']==$vet_id)?'selected':'' ?>><?= htmlspecialchars($vet_name) ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <button class="button button-approve"><?= $row['vet_id'] ? 'Change Vet' : 'Assign Vet' ?></button>
+                            <button class="button button-approve"><?= ($row['vet_id']) ? 'Change Vet' : 'Assign Vet' ?></button>
                         </form>
+
                         <?php if($row['status']=='Pending'): ?>
                         <form method="post" style="display:inline;">
                             <input type="hidden" name="appointment_id" value="<?= $row['id'] ?>">

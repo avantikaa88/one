@@ -88,7 +88,7 @@ $addedDate = !empty($pet['created_at']) && $pet['created_at'] !== '0000-00-00 00
         <ul>
             <li><a href="../user/User_dashboard.php" class="active">Dashboard</a></li>
             <li><a href="pet.php">Browse Pets</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="../contact/contact.html">Contact</a></li>
         </ul>
     </nav>
     <div class="log">

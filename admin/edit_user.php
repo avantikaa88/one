@@ -13,7 +13,7 @@ if ($user_id <= 0) {
     exit;
 }
 
-/* -------- FETCH USER -------- */
+
 $stmt = $conn->prepare("SELECT * FROM users WHERE user_id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -28,7 +28,6 @@ if (!$user) {
 $errors = [];
 $success = '';
 
-/* -------- UPDATE USER -------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name      = trim($_POST['name']);
     $user_name = trim($_POST['user_name']);
@@ -37,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $gender    = trim($_POST['gender']);
     $address   = trim($_POST['address']);
 
-    /* -------- VALIDATION -------- */
     if ($name === '') $errors[] = "Full name is required";
     if ($user_name === '') $errors[] = "Username is required";
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Valid email is required";
@@ -45,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($address === '') $errors[] = "Address is required";
     if (!in_array($gender, ['Male','Female','Other'])) $errors[] = "Invalid gender selected";
 
-    /* -------- UNIQUE USERNAME -------- */
     $stmt = $conn->prepare("SELECT user_id FROM users WHERE user_name = ? AND user_id != ?");
     $stmt->bind_param("si", $user_name, $user_id);
     $stmt->execute();
@@ -53,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($stmt->num_rows > 0) $errors[] = "Username already exists";
     $stmt->close();
 
-    /* -------- UNIQUE EMAIL -------- */
+
     $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ? AND user_id != ?");
     $stmt->bind_param("si", $email, $user_id);
     $stmt->execute();
@@ -61,7 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($stmt->num_rows > 0) $errors[] = "Email already exists";
     $stmt->close();
 
-    /* -------- UPDATE QUERY -------- */
     if (empty($errors)) {
         $stmt = $conn->prepare("
             UPDATE users 
@@ -77,7 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = "User updated successfully!";
             $stmt->close();
 
-            // Refresh data
             $stmt = $conn->prepare("SELECT * FROM users WHERE user_id = ?");
             $stmt->bind_param("i", $user_id);
             $stmt->execute();

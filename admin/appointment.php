@@ -2,17 +2,16 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
-/* ---------- AUTH CHECK ---------- */
+
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
     header("Location: ../login/login.php");
     exit;
 }
 
-/* ---------- HANDLE FORM SUBMISSION ---------- */
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $appointment_id = intval($_POST['appointment_id']);
 
-    // Assign vet (when no vet assigned yet)
     if (isset($_POST['vet_id']) && $_POST['action'] === 'assign') {
         $vet_id = intval($_POST['vet_id']);
         $stmt = $conn->prepare("UPDATE vet_appointments SET vet_id=?, status='Confirmed' WHERE id=?");
@@ -23,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Change vet (when vet already assigned)
     if (isset($_POST['vet_id']) && $_POST['action'] === 'change') {
         $vet_id = intval($_POST['vet_id']);
         $stmt = $conn->prepare("UPDATE vet_appointments SET vet_id=? WHERE id=?");
@@ -34,7 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Cancel appointment
     if ($_POST['action'] === 'cancel') {
         $stmt = $conn->prepare("UPDATE vet_appointments SET status='Cancelled' WHERE id=?");
         $stmt->bind_param("i", $appointment_id);
@@ -45,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-/* ---------- FETCH VET APPOINTMENTS ---------- */
+
 $vetAppointments = $conn->query("
     SELECT 
         va.id,
@@ -61,7 +58,7 @@ $vetAppointments = $conn->query("
     ORDER BY va.created_at DESC
 ");
 
-/* ---------- FETCH ALL VETS ---------- */
+
 $vets = $conn->query("SELECT vet_id, name FROM vet");
 $vets_arr = [];
 while ($vet = $vets->fetch_assoc()) {
@@ -92,7 +89,6 @@ button:hover { opacity: 0.9; }
 <body>
 <div class="dashboard-container">
 
-    <!-- SIDEBAR -->
     <div class="sidebar">
         <h2>Buddy Admin</h2>
         <ul>
@@ -105,7 +101,6 @@ button:hover { opacity: 0.9; }
         <a href="../logout.php" class="logout-button">Logout</a>
     </div>
 
-    <!-- CONTENT -->
     <div class="main-content">
         <h2>Vet Appointments</h2>
 
@@ -144,7 +139,7 @@ button:hover { opacity: 0.9; }
                     <td><?= $row['status'] ?></td>
                     <td>
                         <?php if ($row['status'] !== 'Cancelled'): ?>
-                            <!-- Form for assigning/changing vet -->
+                            
                             <form method="post" style="display: inline-block; margin-right: 5px;">
                                 <input type="hidden" name="appointment_id" value="<?= $row['id'] ?>">
                                 <input type="hidden" name="action" value="<?= $row['vet_id'] ? 'change' : 'assign' ?>">
@@ -161,7 +156,6 @@ button:hover { opacity: 0.9; }
                                 </button>
                             </form>
                             
-                            <!-- Form for cancelling appointment -->
                             <?php if ($row['status'] === 'Pending'): ?>
                                 <form method="post" style="display: inline-block;">
                                     <input type="hidden" name="appointment_id" value="<?= $row['id'] ?>">

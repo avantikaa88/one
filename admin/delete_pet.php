@@ -8,7 +8,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
 }
 
 $pet_id = (int)$_GET['id'];
+
+$conn->query("DELETE FROM adoption_application WHERE pet_id = $pet_id");
+
+
 $conn->query("DELETE FROM pet WHERE pet_id = $pet_id");
+
 header("Location: manage_pets.php");
 exit;
 ?>

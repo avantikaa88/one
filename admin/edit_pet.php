@@ -2,16 +2,16 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
-/* ---------------- ADMIN CHECK ---------------- */
+
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
     header("Location: ../login/login.php");
     exit;
 }
 
-/* ---------------- FETCH PET TYPES ---------------- */
+
 $pet_types = $conn->query("SELECT type_id, species, breed FROM pet_type ORDER BY species, breed");
 
-/* ---------------- FETCH PET TO EDIT ---------------- */
+
 $pet_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($pet_id <= 0) die("Invalid Pet ID");
 
@@ -23,22 +23,20 @@ $stmt->close();
 
 if (!$pet) die("Pet not found");
 
-/* ---------------- INIT ---------------- */
 $errors = [];
 $success = '';
 $image_path = $pet['image'] ?? '';
 $type_option = 'existing'; // default
 
-/* ---------------- FORM SUBMIT ---------------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
     $gender = $_POST['gender'] ?? '';
     $dob = $_POST['dob'] ?? '';
     $description = trim($_POST['description'] ?? '');
-    $adoption_fee = (float)($_POST['adoption_fee'] ?? 0);
-    $status = 'Available'; // FORCE STATUS
+    $adoption_fee_input = $_POST['adoption_fee'] ?? '';
+    $status = 'Available'; 
 
-    // Handle pet type selection
+   
     $type_option = $_POST['type_option'] ?? '';
     $type_id = 0;
 
@@ -79,14 +77,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Please select a pet type option.";
     }
 
-    /* ---------------- VALIDATION ---------------- */
     if ($name === '') $errors[] = "Pet name is required.";
     if (!in_array($gender, ['Male','Female'])) $errors[] = "Select valid gender.";
     if (!$dob || strtotime($dob) > time()) $errors[] = "Enter valid DOB.";
     if ($type_id <= 0) $errors[] = "Select valid pet type.";
-    if ($adoption_fee < 0) $errors[] = "Invalid adoption fee.";
 
-    /* ---------------- IMAGE UPLOAD ---------------- */
+    
+    if ($adoption_fee_input === '') {
+        $errors[] = "Adoption fee is required.";
+    } elseif (!is_numeric($adoption_fee_input) || (float)$adoption_fee_input < 0) {
+        $errors[] = "Adoption fee cannot be negative.";
+    } else {
+        $adoption_fee = (float)$adoption_fee_input;
+    }
+
+    
     if (!empty($_FILES['image']['name'])) {
         $allowed_types = ['image/jpeg','image/jpg','image/png','image/gif','image/webp'];
         $file_type = mime_content_type($_FILES['image']['tmp_name']);
@@ -102,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
 
             if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_dir . $image_name)) {
-                // Delete old image if exists
+                
                 if (!empty($image_path) && file_exists('../'.$image_path)) unlink('../'.$image_path);
                 $image_path = 'uploads/' . $image_name;
             } else {
@@ -111,12 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    /* ---------------- UPDATE PET ---------------- */
     if (empty($errors)) {
         $stmt = $conn->prepare(
             "UPDATE pet SET name=?, gender=?, dob=?, status=?, type_id=?, description=?, adoption_fee=?, image=? WHERE pet_id=?"
         );
-        // FIXED bind_param types: 9 variables
         $stmt->bind_param(
             "ssssisdsi",
             $name,
@@ -212,9 +215,8 @@ if ($success) echo "<p class='success'>$success</p>";
     <textarea name="description"><?= htmlspecialchars($_POST['description'] ?? $pet['description']) ?></textarea>
 
     <label>Adoption Fee:</label>
-    <input type="number" step="0.01" name="adoption_fee" value="<?= htmlspecialchars($_POST['adoption_fee'] ?? $pet['adoption_fee']) ?>" required>
+    <input type="number" step="0.01" min="0" name="adoption_fee" value="<?= htmlspecialchars($_POST['adoption_fee'] ?? $pet['adoption_fee']) ?>" required>
 
-    <!-- Pet Type -->
     <fieldset class="type-section">
         <legend>Pet Type</legend>
         <div class="radio-group">

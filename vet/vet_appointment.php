@@ -1,10 +1,7 @@
 <?php
-// Start session and include database connection
 session_start();
 include(__DIR__ . '/../db.php');
 
-// ---------------- AUTH CHECK ----------------
-// Only allow logged-in users with type 'vet'
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_type']) || strtolower($_SESSION['user_type']) !== 'vet') {
     header("Location: ../login/login.php");
     exit;
@@ -12,17 +9,15 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_type']) || strtolower
 
 $vet_id = $_SESSION['user_id'];
 
-// ---------------- HANDLE APPROVE APPOINTMENT ----------------
+
 if (isset($_POST['approve'])) {
     $id = intval($_POST['appointment_id']);
     $date = $_POST['appointment_date'];
     $time = $_POST['appointment_time'];
-
-    // Check if date is in the past
     if ($date < date('Y-m-d')) {
         $_SESSION['error'] = "You cannot select a past date.";
     } else {
-        // Update appointment status to Confirmed
+ 
         $stmt = $conn->prepare("UPDATE vet_appointments SET status='Confirmed', appointment_date=?, appointment_time=? WHERE id=? AND vet_id=?");
         $stmt->bind_param("ssii", $date, $time, $id, $vet_id);
         $stmt->execute();
@@ -33,7 +28,6 @@ if (isset($_POST['approve'])) {
     exit;
 }
 
-// ---------------- HANDLE CANCEL APPOINTMENT ----------------
 if (isset($_POST['cancel'])) {
     $id = intval($_POST['appointment_id']);
     $stmt = $conn->prepare("UPDATE vet_appointments SET status='Cancelled' WHERE id=? AND vet_id=?");
@@ -45,7 +39,7 @@ if (isset($_POST['cancel'])) {
     exit;
 }
 
-// ---------------- FETCH ALL APPOINTMENTS ----------------
+
 $stmt = $conn->prepare("
     SELECT va.id, va.appointment_date, va.appointment_time, va.status, va.reason, va.service_type,
            u.name AS user_name, p.name AS pet_name
@@ -72,7 +66,6 @@ $stmt->close();
 </head>
 <body>
 
-<!-- ---------------- Sidebar ---------------- -->
 <div class="sidebar">
     <div>
         <h2>Buddy Vet</h2>
@@ -83,12 +76,9 @@ $stmt->close();
     </div>
 </div>
 
-
-<!-- ---------------- Main Content ---------------- -->
 <div class="main">
     <h2>Manage Appointments</h2>
 
-    <!-- Show error messages -->
     <?php if(isset($_SESSION['error'])): ?>
         <div class="error"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
     <?php endif; ?>
@@ -120,7 +110,7 @@ $stmt->close();
                         <span class="status status-<?= $row['status']; ?>"><?= $row['status']; ?></span>
                     </td>
                     <td>
-                        <!-- Approve button for Pending -->
+  
                         <?php if($row['status'] === 'Pending'): ?>
                             <form method="POST">
                                 <input type="hidden" name="appointment_id" value="<?= $row['id']; ?>">
@@ -130,7 +120,6 @@ $stmt->close();
                             </form>
                         <?php endif; ?>
 
-                        <!-- Cancel button for Pending or Confirmed -->
                         <?php if($row['status'] === 'Pending' || $row['status'] === 'Confirmed'): ?>
                             <form method="POST">
                                 <input type="hidden" name="appointment_id" value="<?= $row['id']; ?>">

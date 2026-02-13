@@ -37,7 +37,7 @@ $stmt->execute();
 $pending_applications = $stmt->get_result()->fetch_assoc()['cnt'] ?? 0;
 $stmt->close();
 
-/* ✅ NOW INCLUDES PENDING + APPROVED UNPAID */
+/* NOW INCLUDES PENDING + APPROVED UNPAID */
 $stmt = $conn->prepare("
     SELECT SUM(adoption_fee) AS due 
     FROM adoption_application 
@@ -50,7 +50,6 @@ $stmt->execute();
 $payments_due = $stmt->get_result()->fetch_assoc()['due'] ?? 0;
 $stmt->close();
 
-/* ---------------- VET APPOINTMENTS ---------------- */
 $stmt = $conn->prepare("
     SELECT 
         va.appointment_date,
@@ -126,7 +125,7 @@ $stmt->close();
     <ul>
       <li><a href="../pet/pet.php">Browse Pets</a></li>
       <li><a href="vet_booking.php">Vet Services</a></li>
-      <li><a href="#">Contact</a></li>
+      <li><a href="../contact/contact.html">Contact</a></li>
     </ul>
   </nav>
   <a href="../logout.php" class="login">Logout</a>
@@ -142,13 +141,14 @@ $stmt->close();
       <li><a href="adoption_applications.php">Adoption Applications</a></li>
     </ul>
 
-    <div class="user-profile" onclick="window.location.href='user_profile.php'">
-      <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="User">
-      <div class="user-info">
-        <h4><?= htmlspecialchars($user['user_name']); ?></h4>
-        <p><?= htmlspecialchars($user['email']); ?></p>
-      </div>
-    </div>
+  <div class="user-profile">
+  <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="User">
+  <div class="user-info">
+    <h4><?= htmlspecialchars($user['user_name']); ?></h4>
+    <p><?= htmlspecialchars($user['email']); ?></p>
+  </div>
+</div>
+
   </div>
 
   <div class="main-content">

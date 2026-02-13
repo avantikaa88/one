@@ -2,7 +2,6 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
-/* ---------------- AUTH CHECK ---------------- */
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login/login.php");
     exit;
@@ -18,15 +17,12 @@ if ($_SESSION['user_type'] !== 'user') {
 }
 
 $user_id = $_SESSION['user_id'];
-
-/* ---------------- USER INFO ---------------- */
 $stmt = $conn->prepare("SELECT user_name, email FROM users WHERE user_id = ? LIMIT 1");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-/* ---------------- FETCH ADOPTED PETS ---------------- */
 $stmt = $conn->prepare("
     SELECT p.pet_id, p.name, p.dob, p.gender
     FROM pet p
@@ -37,8 +33,6 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $pets = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
-
-/* ---------------- FUTURE APPOINTMENTS ---------------- */
 $appointments = [];
 $stmt = $conn->prepare("
     SELECT pet_id 
@@ -63,7 +57,6 @@ $stmt->close();
 <link rel="stylesheet" href="User.css">
 <style>
 
-/* ----------- Pet Cards ----------- */
 .pet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
 .pet-card { background: #fff; border-radius: 15px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
 .pet-card h3 { margin-top: 0; color: #4b2e05; }
@@ -77,8 +70,6 @@ $stmt->close();
 </style>
 </head>
 <body>
-
-<!-- HEADER -->
 <header>
   <div class="logo">
     <img src="../picture/Group.png" alt="Buddy Logo">
@@ -86,7 +77,7 @@ $stmt->close();
   </div>
   <nav class="navbar">
     <ul>
-    
+      <li><a href="../pet/pet.php">Browse Pets</a></li>
       <li><a href="vet_booking.php" class="active">Vet Services</a></li>
       <li><a href="#">Contact</a></li>
     </ul>
@@ -96,12 +87,11 @@ $stmt->close();
 
 <div class="dashboard-container">
 
-  <!-- SIDEBAR -->
   <div class="sidebar">
     <ul class="sidebar-nav">
       <li><a href="User_dashboard.php">Dashboard</a></li>
       <li><a href="my_pets.php">My Pets</a></li>
-      <li><a href="vet_booking.php" class="active">Vet Services</a></li>
+      <li><a href="appointments.php">Appointments</a></li>
       <li><a href="adoption_applications.php">Adoption Applications</a></li>
     </ul>
 
@@ -114,14 +104,12 @@ $stmt->close();
     </div>
   </div>
 
-  <!-- MAIN CONTENT -->
   <div class="main-content">
     <h2>My Adopted Pets</h2>
 
     <?php if (count($pets) > 0): ?>
     <div class="pet-grid">
       <?php foreach ($pets as $pet): 
-            // Calculate age dynamically from dob
             $dob = new DateTime($pet['dob']);
             $today = new DateTime();
             $age = $today->diff($dob)->y;

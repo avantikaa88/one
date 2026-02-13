@@ -11,6 +11,14 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'user') {
 $user_id = $_SESSION['user_id'];
 $pet_id  = isset($_GET['pet_id']) ? (int)$_GET['pet_id'] : 0;
 
+/* ---------------- INITIAL ERROR CHECK ---------------- */
+$success = '';
+$error = '';
+
+if ($pet_id <= 0) {
+    $error = "Please select a pet before booking an appointment.";
+}
+
 /* ---------------- FETCH PET INFO ---------------- */
 $pet_name = '';
 if ($pet_id > 0) {
@@ -23,7 +31,7 @@ if ($pet_id > 0) {
 }
 
 /* ---------------- HANDLE FORM ---------------- */
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pet_id > 0) {
 
     $service_type = $_POST['service_type'] ?? '';
     $reason = trim($_POST['reason'] ?? '');
@@ -31,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $appointment_date = date('Y-m-d');
     $appointment_time = date('H:i:s');
 
-    // check existing appointment
+    // check existing upcoming appointment for this pet
     $stmt = $conn->prepare("
         SELECT COUNT(*) AS cnt
         FROM vet_appointments
@@ -46,14 +54,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "You already have an upcoming appointment for this pet.";
     } else {
 
-        // vet_id is NULL (admin will assign later)
+        // vet_id is NULL (admin assigns later)
         $stmt = $conn->prepare("
             INSERT INTO vet_appointments
             (user_id, pet_id, vet_id, service_type, reason, appointment_date, appointment_time, status)
             VALUES (?, ?, NULL, ?, ?, ?, ?, 'Pending')
         ");
 
-        $stmt->bind_param("iissss",
+        $stmt->bind_param(
+            "iissss",
             $user_id,
             $pet_id,
             $service_type,
@@ -103,6 +112,7 @@ button:hover { background: #2E7D32; }
 <?php if (!empty($success)) echo "<div class='success'>$success</div>"; ?>
 <?php if (!empty($error)) echo "<div class='error'>$error</div>"; ?>
 
+<?php if ($pet_id > 0): ?>
 <form method="post">
 
     <label>Pet</label>
@@ -125,6 +135,7 @@ button:hover { background: #2E7D32; }
 
     <button type="submit">Request Appointment</button>
 </form>
+<?php endif; ?>
 
 <a href="../user/vet_booking.php" class="back-link">← Back to My Pets</a>
 </div>

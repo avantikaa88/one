@@ -121,7 +121,6 @@ img.pet-img{width:80px;height:60px;object-fit:cover;border-radius:6px;}
         </tr>
 
         <?php foreach($pets as $pet):
-            // Image handling
             $defaultImg = '../picture/happy.png';
             $imageSrc = $defaultImg;
             if(!empty($pet['image'])){

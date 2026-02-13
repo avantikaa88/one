@@ -2,23 +2,33 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
+/* -------------------------------
+   AUTH CHECK
+-------------------------------- */
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
     header("Location: ../login/login.php");
     exit;
 }
 
-/* ================= ADD VET ================= */
+/* -------------------------------
+   ADD VET LOGIC
+-------------------------------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $username         = trim($_POST['username']);
     $email            = trim($_POST['email']);
     $password         = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $specialization   = trim($_POST['specialization']);
-    $licence_no       = trim($_POST['licence_no']);
+    $licence_no       = trim($_POST['licence_no'] ?? '');
     $clinic_location  = trim($_POST['clinic_location']);
-    $availability     = trim($_POST['availability']);
-    $experience       = (int)$_POST['experience'];
+    $availability     = trim($_POST['availability'] ?? '');
+    $experience       = (int)($_POST['experience'] ?? 0);
     $contact_info     = trim($_POST['contact_info']);
+
+    // If licence_no is empty, set to NULL
+    if ($licence_no === '') {
+        $licence_no = NULL;
+    }
 
     $stmt = $conn->prepare("
         INSERT INTO vet 
@@ -26,21 +36,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
          availability, experience, contact_info, email)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
+
     $stmt->bind_param(
         "ssssssiss",
         $username,
         $password,
         $specialization,
-        $licence_no,
+        $licence_no,       // can be NULL
         $clinic_location,
         $availability,
         $experience,
         $contact_info,
         $email
     );
-    $stmt->execute();
-    $stmt->close();
 
+    if ($stmt->execute()) {
+        $_SESSION['success'] = "Vet added successfully.";
+    } else {
+        $_SESSION['error'] = "Failed to add vet: " . $stmt->error;
+    }
+
+    $stmt->close();
     header("Location: manage_vet.php");
     exit;
 }
@@ -52,7 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Add Vet</title>
     <link rel="stylesheet" href="admin.css">
     <style>
-
         .form-box {
             max-width: 600px;
             margin: 0 auto;
@@ -61,7 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
-
         .form-box input {
             width: 100%;
             padding: 12px 15px;
@@ -71,13 +85,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 16px;
             transition: border 0.3s, box-shadow 0.3s;
         }
-
         .form-box input:focus {
             border-color: #8B4513;
             box-shadow: 0 0 5px rgba(139,69,19,0.3);
             outline: none;
         }
-
         .form-box button {
             width: 100%;
             padding: 14px;
@@ -90,13 +102,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             cursor: pointer;
             transition: background 0.3s, transform 0.2s;
         }
-
         .form-box button:hover {
             background-color: #a0522d;
             transform: translateY(-2px);
         }
-
-        /* Back link */
         .back-link {
             display: block;
             margin-top: 20px;
@@ -106,11 +115,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-decoration: none;
             transition: color 0.3s;
         }
-
         .back-link:hover {
             color: #a0522d;
         }
-
     </style>
 </head>
 <body>
@@ -136,12 +143,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <form method="post" class="form-box">
 
-    <input type="text" name="username" placeholder="username" required>
+    <input type="text" name="username" placeholder="Username" required>
     <input type="email" name="email" placeholder="Email" required>
     <input type="password" name="password" placeholder="Password" required>
 
     <input type="text" name="specialization" placeholder="Specialization" required>
-    <input type="text" name="licence_no" placeholder="Licence No" required>
+    <input type="text" name="licence_no" placeholder="Licence No (Optional)">
     <input type="text" name="clinic_location" placeholder="Clinic Location" required>
 
     <input type="text" name="availability" placeholder="Availability (e.g. Mon–Fri)">

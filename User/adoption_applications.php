@@ -2,7 +2,6 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
-// Check if user is logged in and is a 'user'
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'user') {
     header("Location: ../login/login.php");
     exit;
@@ -10,14 +9,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'user') {
 
 $user_id = $_SESSION['user_id'];
 
-// Get user info
 $stmt = $conn->prepare("SELECT user_name, email FROM users WHERE user_id = ? LIMIT 1");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-// Get adoption applications of the user
 $stmt = $conn->prepare("
     SELECT a.adoption_id, a.adoption_date, a.status, 
            a.payment_status, a.adoption_fee, a.payment_amount, 

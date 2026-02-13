@@ -2,25 +2,29 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
-// ---------------- AUTH CHECK ----------------
+
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
     header("Location: ../login/login.php");
     exit;
 }
 
-// ---------------- FETCH PETS ----------------
-// Available pets
 $available_pets = $conn->query("
     SELECT p.pet_id, p.name, p.dob, p.gender, p.status, p.adoption_fee, p.image,
            p.created_at,
-           pt.species, pt.breed
+           pt.species, pt.breed,
+           aa.status AS adoption_request_status
     FROM pet p
     LEFT JOIN pet_type pt ON p.type_id = pt.type_id
+    LEFT JOIN (
+        SELECT pet_id, status
+        FROM adoption_application
+        WHERE status = 'Pending'
+    ) aa ON p.pet_id = aa.pet_id
     WHERE p.status != 'Adopted'
     ORDER BY p.pet_id DESC
 ");
 
-// Adopted pets
+
 $adopted_pets = $conn->query("
     SELECT p.pet_id, p.name, p.dob, p.gender, p.status, p.adoption_fee, p.image,
            p.created_at,
@@ -31,7 +35,7 @@ $adopted_pets = $conn->query("
     ORDER BY p.pet_id DESC
 ");
 
-// Pet shop name
+
 $shop_name = "Buddy Pet Shop";
 ?>
 
@@ -41,17 +45,16 @@ $shop_name = "Buddy Pet Shop";
 <meta charset="UTF-8">
 <title>Manage Pets</title>
 <link rel="stylesheet" href="adminn.css">
-
 </head>
 <body>
 
 <div class="dashboard-container">
 
-    <!-- Sidebar -->
+  
     <div class="sidebar">
         <h2>Buddy Admin</h2>
         <ul>
-            <li><a  href="admin_dashboard.php">Dashboard</a></li>
+            <li><a href="admin_dashboard.php">Dashboard</a></li>
             <li><a href="manage_users.php">Manage Users</a></li>
             <li><a href="manage_vet.php">Manage Vet</a></li>
             <li><a class="active" href="manage_pets.php">Manage Pets</a></li>
@@ -61,11 +64,10 @@ $shop_name = "Buddy Pet Shop";
         <a href="../logout.php" class="logout-button">Logout</a>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
         <h1>Manage Pets <a href="add_pet.php" class="add-button">+ Add New Pet</a></h1>
 
-        <!-- Available Pets -->
+        
         <h2>Available Pets</h2>
         <table>
             <thead>
@@ -91,7 +93,16 @@ $shop_name = "Buddy Pet Shop";
                     <td><?= htmlspecialchars($pet['species'] ?? 'N/A') ?></td>
                     <td><?= htmlspecialchars($pet['breed'] ?? 'N/A') ?></td>
                     <td><?= htmlspecialchars($pet['gender']) ?></td>
-                    <td><?= htmlspecialchars($pet['status']) ?></td>
+                    <td>
+                        <?php
+                        
+                        if (!empty($pet['adoption_request_status']) && $pet['adoption_request_status'] === 'Pending') {
+                            echo 'Pending';
+                        } else {
+                            echo htmlspecialchars($pet['status']); 
+                        }
+                        ?>
+                    </td>
                     <td>Rs <?= number_format($pet['adoption_fee'], 2) ?></td>
                     <td><?= htmlspecialchars($shop_name) ?></td>
                     <td>
@@ -106,7 +117,7 @@ $shop_name = "Buddy Pet Shop";
             </tbody>
         </table>
 
-        <!-- Adopted Pets -->
+       
         <h2>Adopted Pets</h2>
         <table>
             <thead>

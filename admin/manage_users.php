@@ -2,15 +2,13 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
-// ---------------- AUTH CHECK ----------------
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
-    // Redirect non-admin users to login
+
     header("Location: ../login/login.php");
     exit;
 }
 
-// ---------------- FETCH USERS ----------------
-// Fetch all non-admin users, latest registered first
+
 $users = $conn->query("SELECT * FROM users WHERE roles != 'admin' ORDER BY register_date DESC");
 
 ?>
@@ -20,52 +18,19 @@ $users = $conn->query("SELECT * FROM users WHERE roles != 'admin' ORDER BY regis
 <head>
 <meta charset="UTF-8">
 <title>Manage Users</title>
-<link rel="stylesheet" href="admin.css" />
-<style>
-    /* Main Content */
-    .main-content { 
-        flex: 1; 
-        padding: 40px; 
-        margin-left: 220px; 
-        background: #f4f4f4;
-    }
-    h1 { margin-bottom: 20px; }
+<link rel="stylesheet" href="adminn.css" />
 
-    /* Alert messages */
-    .alert { padding: 12px 15px; border-radius: 5px; margin: 15px 0; }
-    .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    .alert-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-
-    /* Table styling */
-    table { 
-        width: 100%; 
-        border-collapse: collapse; 
-        background: #fff; 
-        border-radius: 10px; 
-        overflow: hidden; 
-        margin-top: 20px; 
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-    }
-    th, td { padding: 12px; border: 1px solid #ccc; text-align: left; }
-    th { background:#8a5826; color:#fff; }
-    tr:nth-child(even) { background:#f7f7f7; }
-    .delete-link { color:#e84118; text-decoration: none; }
-    .delete-link:hover { color:#c23616; }
-
-    a { text-decoration: none; color: #2f3640; }
-    a:hover { text-decoration: underline; }
-</style>
 </head>
 <body>
 
 <div class="dashboard-container">
 
-    <!-- Sidebar -->
+
     <div class="sidebar">
         <h2>Buddy Admin</h2>
     <ul>
-        <li><a class="active" href="admin_dashboard.php">Dashboard</a></li>
-        <li><a href="manage_users.php">Manage Users</a></li>
+        <li><a href="admin_dashboard.php">Dashboard</a></li>
+        <li><a class="active" href="manage_users.php">Manage Users</a></li>
         <li><a href="manage_vet.php">Manage Vet</a></li>
         <li><a href="manage_pets.php">Manage Pets</a></li>
         <li><a href="adoption_request.php">Adoption Requests</a></li>
@@ -74,11 +39,9 @@ $users = $conn->query("SELECT * FROM users WHERE roles != 'admin' ORDER BY regis
         <a href="../logout.php" class="logout-button">Logout</a>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
         <h1>Manage Users</h1>
 
-        <!-- Display Success/Error Messages -->
         <?php if (isset($_SESSION['success'])): ?>
             <div class="alert alert-success"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
         <?php endif; ?>
@@ -103,7 +66,6 @@ $users = $conn->query("SELECT * FROM users WHERE roles != 'admin' ORDER BY regis
             </thead>
             <tbody>
             <?php
-            // Color codes for different user types
             $type_color = [
                 'user' => 'color:#666;',
                 'vet' => 'color:#0097e6;',

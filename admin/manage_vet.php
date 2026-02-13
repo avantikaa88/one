@@ -2,13 +2,11 @@
 session_start();
 include(__DIR__ . '/../db.php');
 
-// ---------------- AUTH CHECK ----------------
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
     header("Location: ../login/login.php");
     exit;
 }
 
-/* ================= DELETE VET ================= */
 if (isset($_GET['delete'])) {
     $vet_id = (int)$_GET['delete'];
 
@@ -21,7 +19,7 @@ if (isset($_GET['delete'])) {
     exit;
 }
 
-/* ================= FETCH VETS ================= */
+
 $vets = $conn->query("
     SELECT vet_id, email, specialization, licence_no,
            clinic_location, availability, experience, contact_info, created_at
@@ -47,7 +45,6 @@ $vets = $conn->query("
 
 <div class="dashboard-container">
 
-<!-- Sidebar -->
 <div class="sidebar">
     <h2>Buddy Admin</h2>
     <ul>
@@ -60,13 +57,8 @@ $vets = $conn->query("
     </ul>
     <a href="../logout.php" class="logout-button">Logout</a>
 </div>
-
-<!-- Main Content -->
 <div class="main-content">
-
 <h2>Vet Management</h2>
-
-<!-- Add Vet Button -->
 <a href="add_vet.php" class="add-button">+ Add New Vet</a>
 
 <hr>

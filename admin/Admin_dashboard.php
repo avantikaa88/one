@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle Adoption Requests
     if (isset($_POST['adoption_id'])) {
         $id = intval($_POST['adoption_id']);
-        
+
         if (isset($_POST['adoption_action'])) {
             if ($_POST['adoption_action'] === 'approve') {
                 $stmt = $conn->prepare("UPDATE adoption_application SET status='Approved' WHERE adoption_id=?");
@@ -80,23 +80,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 /* ================= FETCH DATA ================= */
-// Recent Adoption Requests
+
+// Recent Adoption Requests (Last 7 Days Only)
 $applications = $conn->query("
     SELECT aa.*, u.user_name, u.email, p.name AS pet_name, pt.species, pt.breed
     FROM adoption_application aa
     JOIN users u ON aa.user_id = u.user_id
     JOIN pet p ON aa.pet_id = p.pet_id
     JOIN pet_type pt ON p.type_id = pt.type_id
+    WHERE aa.adoption_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
     ORDER BY aa.adoption_date DESC
     LIMIT 10
 ");
 
-// Recent Vet Appointments
+// Recent Vet Appointments (Last 7 Days Only)
 $vetAppointments = $conn->query("
     SELECT va.*, u.name AS user_name, p.name AS pet_name
     FROM vet_appointments va
     JOIN users u ON va.user_id = u.user_id
     JOIN pet p ON va.pet_id = p.pet_id
+    WHERE va.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
     ORDER BY va.appointment_date DESC
     LIMIT 10
 ");
@@ -134,7 +137,6 @@ while ($v = $vets->fetch_assoc()) {
 
 <div class="main-content">
 
-<!-- Dashboard cards -->
 <div class="cards-grid">
     <div class="card"><h3>Total Users</h3><p><?= $total_users ?></p></div>
     <div class="card"><h3>Total Pets</h3><p><?= $total_pets ?></p></div>
@@ -143,7 +145,6 @@ while ($v = $vets->fetch_assoc()) {
     <div class="card"><h3>Total Appointments</h3><p><?= $total_appointments ?></p></div>
 </div>
 
-<!-- Recent Adoption Requests -->
 <h2>Recent Adoption Requests</h2>
 <table>
 <tr>
@@ -188,7 +189,6 @@ while ($v = $vets->fetch_assoc()) {
 <?php endwhile; ?>
 </table>
 
-<!-- Recent Vet Appointments -->
 <h2>Recent Vet Appointments</h2>
 <table>
 <tr>
@@ -209,11 +209,14 @@ while ($v = $vets->fetch_assoc()) {
                 <select name="vet_id" required>
                     <option value="">-- Select Vet --</option>
                     <?php foreach($vets_arr as $vet_id => $vet_name): ?>
-                        <option value="<?= $vet_id ?>" <?= ($row['vet_id']==$vet_id)?'selected':'' ?>><?= htmlspecialchars($vet_name) ?></option>
+                        <option value="<?= $vet_id ?>" <?= ($row['vet_id']==$vet_id)?'selected':'' ?>>
+                            <?= htmlspecialchars($vet_name) ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
                 <button class="button button-approve"><?= $row['vet_id'] ? 'Change Vet' : 'Assign Vet' ?></button>
             </form>
+
             <?php if($row['status']=='Pending'): ?>
                 <form method="post" style="display:inline;">
                     <input type="hidden" name="appointment_id" value="<?= $row['id'] ?>">

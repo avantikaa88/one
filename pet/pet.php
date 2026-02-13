@@ -120,7 +120,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:15p
     <ul>
       <li><a href="../user/User_dashboard.php">Dashboard</a></li>
       <li><a href="pet.php">Browse Pets</a></li>
-      <li><a href="#">Contact</a></li>
+      <li><a href="../contact/contact.html">Contact</a></li>
     </ul>
   </nav>
   <div>
@@ -160,7 +160,13 @@ header{display:flex;justify-content:space-between;align-items:center;padding:15p
   <div class="pet-grid">
     <?php if($result->num_rows > 0): ?>
       <?php while($pet = $result->fetch_assoc()):
-        $imageSrc = !empty($pet['image']) ? '../'.trim($pet['image']) : '../picture/happy.png';
+        // Correct image path
+        $defaultImg = '../picture/happy.png';
+        $imageSrc = (!empty($pet['image']) && file_exists(__DIR__ . '/../' . $pet['image'])) 
+                     ? '../' . ltrim($pet['image'], '/') 
+                     : $defaultImg;
+
+        // Calculate age
         $dob = new DateTime($pet['dob']);
         $age = (new DateTime())->diff($dob)->y;
       ?>

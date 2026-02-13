@@ -1,0 +1,173 @@
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+body { background:#f5f6fa; }
+
+.dashboard-container { display:flex; min-height:100vh; }
+
+/* SIDEBAR */
+.sidebar {
+    width:220px;
+    background:#7c4b2c;
+    color:#fff;
+    padding:20px;
+    position:fixed;
+    height:100vh;
+}
+.sidebar h2 { text-align:center; margin-bottom:30px; }
+.sidebar ul { list-style:none; }
+.sidebar ul li { margin:15px 0; }
+.sidebar ul li a {
+    color:#fff;
+    text-decoration:none;
+    padding:8px;
+    display:block;
+    border-radius:5px;
+}
+.sidebar ul li a:hover, .active { background:#8a5826; }
+
+.logout-button {
+    display:block;
+    margin-top:20px;
+    padding:10px;
+    background:#e89c50;
+    text-align:center;
+    border-radius:5px;
+    color:#fff;
+    text-decoration:none;
+}
+
+/* MAIN */
+.main-content {
+    margin-left:220px;
+    padding:30px;
+    width:100%;
+}
+
+/* CARDS */
+.cards-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:15px;
+}
+.card {
+    background:#fff;
+    padding:15px;
+    border-radius:8px;
+    text-align:center;
+    border:1px solid #ddd;
+}
+.card h3 { font-size:14px; color:#555; margin-bottom:8px; }
+.card p { font-size:22px; font-weight:bold; }
+
+/* TABLE */
+table {
+    width:100%;
+    border-collapse:collapse;
+    background:#fff;
+    margin-top:25px;
+    border-radius: 15px;
+    border:solid #ddd;
+}
+th, td {
+    padding:10px;
+    border:1px solid #ddd;
+    text-align:center;
+}
+th { background:#8a5826; color:#fff; }
+
+   table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        background: #fff; 
+        border-radius: 10px; 
+        overflow: hidden; 
+        margin-top: 20px; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    }
+    th, td { padding: 12px; border: 1px solid #ccc; text-align: left; }
+    th { background:#8a5826; color:#fff; }
+
+/* Adoption + Vet statuses */
+.status-Pending {
+ color: #ffa500;
+ font-weight: bold;
+}
+
+.status-Approved , .status-Confirmed {
+   color: #28a745;
+   font-weight: bold;
+}
+
+
+
+.status-Cancelled , .status-Rejected  {
+     color: #db1327;
+    font-weight: bold;
+}
+
+
+
+/* ================= BUTTONS ================= */
+.button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.button-approve {
+    background: #28a745;
+    color: #fff;
+}
+
+.button-reject {
+    background: #dc3545;
+    color: #fff;
+}
+
+.button-update {
+    background: #007bff;
+    color: #fff;
+}
+
+.button:hover {
+    opacity: 0.85;
+}
+
+/* ================= SELECT DROPDOWNS ================= */
+select {
+    padding: 6px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-right: 5px;
+}
+
+a { text-decoration: none; color: #41e22b; }
+a:hover { text-decoration: underline; }
+
+tr:nth-child(even) { background:#f7f7f7; }
+.delete-link { color:#e84118; text-decoration: none; }
+.delete-link:hover { color:#c23616; }
+
+    /* Alert messages */
+    .alert { padding: 12px 15px; border-radius: 5px; margin: 15px 0; }
+    .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+
+
+
+.add-button{ padding: 5px ;
+     background: #00a8ff; 
+     color: #fff;
+      border-radius: 5px; 
+      text-decoration: none;
+     float: right; }
+.add-button:hover { background: #0097e6; }
+
+
+
+a.action { color:#00a8ff; text-decoration:none; margin-right: 5px; }
+a.action:hover { text-decoration: underline; }
+a.delete-link { color: #e84118; text-decoration: none; }
+a.delete-link:hover { color: #c23616; }
